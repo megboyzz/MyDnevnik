@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MyDnevnik</string>
+    <string name="title_header">Добро пожаловать в дневник</string>
+    <string name="title_marks">Оценки</string>
+    <string name="title_schedule">Расписание</string>
+    <string name="title_hw">Домашнее занадние</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_leave_from_acconut">Выйти из аккаунта</string>
+    <string name="title_welcome">Добро пожаловать в дневник</string>
+    <string name="title_login">Логин</string>
+    <string name="title_password">Пароль</string>
+    <string name="title_forget_password">Забыли пароль?</string>
+    <string name="title_remember_me">Запомнить меня</string>
+    <string name="title_sign_in">Войти</string>
+    <string name="title_sign_up">Нет аккаунта? Расскажем как его зарегистрировать и подключить к школе</string>
+</resources>
