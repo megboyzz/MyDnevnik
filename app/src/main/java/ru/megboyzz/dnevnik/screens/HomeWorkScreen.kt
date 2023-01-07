@@ -6,16 +6,15 @@ import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
-import ru.megboyzz.dnevnik.navigation.AppNavRoute
 
 @Composable
-fun ScheduleScreen(
+fun HomeWorkScreen(
     navController: NavController,
     scaffoldState: ScaffoldState
 ) {
     MainScaffold(
-        icon = R.drawable.ic_schedule.AsPainter(),
-        title = R.string.title_schedule.AsString(),
+        icon = R.drawable.ic_homework.AsPainter(),
+        title = R.string.title_hw.AsString(),
         navController = navController,
         scaffoldState = scaffoldState
     ) {

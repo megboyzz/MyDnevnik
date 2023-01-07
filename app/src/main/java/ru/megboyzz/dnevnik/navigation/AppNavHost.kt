@@ -1,12 +1,25 @@
 package ru.megboyzz.dnevnik.navigation
 
 import android.window.SplashScreen
+import androidx.compose.animation.*
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import ru.megboyzz.dnevnik.screens.HomeWorkScreen
+import ru.megboyzz.dnevnik.screens.LoginScreen
+import ru.megboyzz.dnevnik.screens.MarksScreen
+import ru.megboyzz.dnevnik.screens.ScheduleScreen
 
 
 sealed class AppNavRoute(val route: String){
@@ -20,9 +33,9 @@ sealed class AppNavRoute(val route: String){
     object Settings: AppNavRoute("settings_screen")
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppNavHost(){
-    val navController = rememberNavController()
 
     /*val activity = LocalContext.current as MainActivity
 
@@ -30,14 +43,19 @@ fun AppNavHost(){
 
     val viewModel: AppViewModel = viewModel(factory = AppViewModelFactory(application))*/
 
+
+    val scaffoldState = rememberScaffoldState()
+    val navController = rememberAnimatedNavController()
+
     NavHost(
         navController = navController,
-        startDestination = AppNavRoute.Splash.route
+        startDestination = AppNavRoute.Login.route /* сделать проверку куки файлов */
     ){
         composable(AppNavRoute.Splash.route)        {  }
-        composable(AppNavRoute.Marks.route)         {  }
-        composable(AppNavRoute.Schedule.route)      {  }
-        composable(AppNavRoute.HomeWorks.route)     {  }
+        composable(AppNavRoute.Login.route)         { LoginScreen(navController) }
+        composable(AppNavRoute.Marks.route)         { MarksScreen(navController, scaffoldState) }
+        composable(AppNavRoute.Schedule.route)      { ScheduleScreen(navController, scaffoldState) }
+        composable(AppNavRoute.HomeWorks.route)     { HomeWorkScreen(navController, scaffoldState) }
         composable(AppNavRoute.Settings.route)      {  }
     }
 }
