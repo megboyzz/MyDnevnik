@@ -21,8 +21,9 @@ import ru.megboyzz.dnevnik.screens.LoginScreen
 import ru.megboyzz.dnevnik.screens.MarksScreen
 import ru.megboyzz.dnevnik.screens.ScheduleScreen
 
+sealed class BaseNavRote(open val route: String)
 
-sealed class AppNavRoute(val route: String){
+sealed class AppNavRoute(override val route: String): BaseNavRote(route){
 
     object Splash : AppNavRoute("splash_screen")
 

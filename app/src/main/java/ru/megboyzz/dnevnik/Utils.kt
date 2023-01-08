@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import ru.megboyzz.dnevnik.navigation.AppNavRoute
+import ru.megboyzz.dnevnik.navigation.BaseNavRote
 
 @Composable
 fun Int.AsPainter() = painterResource(this)
@@ -41,7 +42,7 @@ fun SpacerHeight(height: Dp) = Spacer(Modifier.height(height))
 fun Int.AsImageVector() = ImageVector.vectorResource(this)
 
 @Composable
-fun NavController.navigate(to: AppNavRoute){
+fun NavController.navigate(to: BaseNavRote){
     LaunchedEffect(Unit) {
         navigate(to.route) {
             popUpTo(to.route) { inclusive = true }

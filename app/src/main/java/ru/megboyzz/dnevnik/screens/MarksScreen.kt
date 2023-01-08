@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
+import ru.megboyzz.dnevnik.navigation.MarksSubScreenNavHost
 
 @Composable
 fun MarksScreen(
@@ -18,7 +19,7 @@ fun MarksScreen(
         navController = navController,
         scaffoldState = scaffoldState
     ) {
-
+        MarksSubScreenNavHost()
     }
 
 }

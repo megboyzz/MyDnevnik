@@ -1,11 +1,9 @@
 package ru.megboyzz.dnevnik.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColorAsState
+import android.widget.Toast
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
@@ -14,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.*
@@ -35,6 +34,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,11 +46,15 @@ import androidx.compose.ui.unit.*
 import androidx.constraintlayout.compose.Visibility
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.navigation.AppNavRoute
+import ru.megboyzz.dnevnik.navigation.BaseNavRote
+import ru.megboyzz.dnevnik.navigation.MarksNavRoute
 import ru.megboyzz.dnevnik.ui.theme.*
+import java.util.Calendar
 
 @Composable
 fun MainScaffold(
@@ -80,13 +84,23 @@ fun MainScaffold(
                         }
                     }
                 ) {
-                    Image(painter = icon, contentDescription = "icon")
+
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "menu",
+                        tint = white
+                    )
                 }
+                SpacerWidth(width = 5.dp)
                 Text(
                     text = title,
                     fontSize = 16.sp,
                     color = white
                 )
+                Spacer(Modifier.weight(1f))
+                Box(Modifier.padding(15.dp, 15.dp)) {
+                    Image(painter = icon, contentDescription = "icon")
+                }
             }
         },
         content = content,
@@ -123,6 +137,9 @@ fun BottomBar(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .drawColoredShadow(
+                offsetY = 1.dp
+            )
             .height(90.dp)
             .background(white)
             .padding(10.dp, 10.dp, 10.dp, 15.dp),
@@ -180,31 +197,6 @@ fun BottomNavButton(
     }
 }
 
-@Preview
-@Composable
-fun BottomNavButtonPrev() {
-    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-        BottomNavButton(
-            icon = R.drawable.ic_marks.AsPainter(),
-            text = R.string.title_marks.AsString()
-        ) { /* TODO*/ }
-        BottomNavButton(
-            icon = R.drawable.ic_homework.AsPainter(),
-            text = R.string.title_hw.AsString()
-        ) { /* TODO*/ }
-        BottomNavButton(
-            icon = R.drawable.ic_schedule.AsPainter(),
-            text = R.string.title_schedule.AsString()
-        ) { /* TODO*/ }
-    }
-}
-
-@Preview
-@Composable
-fun BottomBarPrev() {
-    val navController = rememberNavController()
-    BottomBar(navController = navController)
-}
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -385,14 +377,6 @@ fun BigLoginBackground() {
     }
 }
 
-
-
-@Preview
-@Composable
-fun ProfilePrev() {
-    ProfileCard(painter = R.drawable.ic_author.AsPainter())
-}
-
 @Composable
 fun MainTextField(
     value: MutableState<String>,
@@ -483,59 +467,6 @@ fun DrawerMainButton(
                 color = textColor
             )
         }
-    }
-}
-
-@Preview
-@Composable
-fun Almst() {
-    Column() {
-        AlmostOutlinedText(text = "Идет 3-я четверть")
-    }
-}
-
-@Preview
-@Composable
-fun ButtonPrev() {
-    DrawerMainButton(
-        icon = R.drawable.ic_marks.AsPainter(),
-        text = "Оценки"
-    )
-}
-
-@Preview
-@Composable
-fun CheckBoxed() {
-    val isCheck = remember { mutableStateOf(false) }
-    val titleColor = mainBlue
-    Row {
-        Card(
-            elevation = 0.dp,
-            shape = RoundedCornerShape(6.dp),
-            border = BorderStroke(1.5.dp, color = titleColor)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .background(if (isCheck.value) titleColor else Color.White)
-                    .clickable {
-                        isCheck.value = !isCheck.value
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                if(isCheck.value)
-                    Icon(Icons.Default.Check, contentDescription = "", tint = Color.White)
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun PrevCB() {
-    val checkedState = remember { mutableStateOf(true) }
-    MainCheckbox(checkedState){
-
     }
 }
 
@@ -728,5 +659,304 @@ fun LoginScreenContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SubScreenNavButton(
+    text: String,
+    isClicked: MutableState<Boolean>,
+    onCLick: () -> Unit
+) {
+    val colors = ButtonDefaults.buttonColors(
+        backgroundColor = if(isClicked.value) mainBlue else white,
+        contentColor =    if(isClicked.value) white else dark
+     )
+    Button(
+        onClick = {
+            isClicked.value = !isClicked.value
+            onCLick.invoke()
+        },
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = mainBlue,
+        ),
+        colors = colors,
+    ) {
+        Text(
+            text = text,
+            style= MainText
+        )
+    }
+}
+
+data class SubScreenData(
+    val title: String,
+    val to: BaseNavRote,
+    val isClicked: MutableState<Boolean>
+)
+
+
+@Composable
+fun SubScreenNavBar(
+    list: List<SubScreenData>,
+    subScreenNavController: NavController
+) {
+    val horizontalScroll = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(horizontalScroll)
+            .padding(15.dp),
+        horizontalArrangement = Arrangement.spacedBy(15.dp)
+    ){
+        for(data in list){
+            if(data.isClicked.value)
+                subScreenNavController.navigate(data.to)
+            SubScreenNavButton(
+                text = data.title,
+                isClicked = data.isClicked
+            ) {
+                for(d in list){
+                    if(data != d)
+                        d.isClicked.value = false
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun LastMarkCard(
+    subjectName: String,
+    mark: Int,
+    date: String, /* мейби стоит поменять на Date или инстанс */
+    teacher: String,
+    reason: String = "null"
+) {
+    Card(
+        backgroundColor = white,
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(
+            width = 1.dp,
+            color = mainBlue
+        ),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(15.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.width(200.dp)
+            ) {
+                Text(
+                    text = subjectName,
+                    style = MainText
+                )
+                Text(
+                    text = mark.toString(),
+                    style = H1,
+                    color = mainBlue
+                )
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = "${R.string.title_mark_recive.AsString()} $date",
+                    style = MainText,
+                    color = dark
+                )
+                Text(
+                    text = "${R.string.title_teacher_name.AsString()}: $teacher",
+                    style = MainText,
+                    color = dark
+                )
+                if(reason != "null")
+                    Text(
+                        text = "${R.string.title_reason.AsString()} $reason",
+                        style = MainText,
+                        color = dark
+                    )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun LastMarkPrev() {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        LastMarkCard(
+            subjectName = "Русский язык",
+            mark = 3,
+            date = "03.02.2023",
+            teacher = "Джаналиева Д. Ф.",
+            reason = "диктнант"
+        )
+        LastMarkCard(
+            subjectName = "Алгебра и начала математического анализа",
+            mark = 5,
+            date = "03.08.2023",
+            teacher = "Штрошер С. Н.")
+    }
+}
+
+data class CalendarData(
+    val title: String,
+    
+)
+
+
+@Composable
+fun CardCalendar(
+    onClick: (day: Int) -> Unit
+) {
+    //Calendar(Calendar.FEBRUARY)
+    val listOfDays = listOf(
+        R.string.title_mon.AsString(),
+        R.string.title_tue.AsString(),
+        R.string.title_wed.AsString(),
+        R.string.title_thu.AsString(),
+        R.string.title_fri.AsString(),
+        R.string.title_sat.AsString(),
+    )
+    Card(
+        backgroundColor = white,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp)
+    ){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+        ){
+            Column(
+                //horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 0.dp, 10.dp, 5.dp)
+                ){
+                    for(day in listOfDays){
+                        Text(
+                            text = day,
+                            style = MainText,
+                            color = dark
+                        )
+                    }
+                }
+                Divider(
+                    thickness = 1.dp,
+                    color = dark,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
+                )
+                val days = 28
+                val weeks = days / 6
+                var dayIn = 2
+                val startDay = 1
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 10.dp, 10.dp, 5.dp)
+                ) {
+                    for (i in 1..6) {
+                        //if(i != 7)
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            for(j in i..days step 7){
+                                var text = j.toString()
+                                if(j < startDay)
+                                    text = ""
+                                val isClicked = remember {
+                                    mutableStateOf(false)
+                                }
+                                NumberOnCalendar(
+                                    isClicked = isClicked,
+                                    number = j
+                                ) { onClick.invoke(j) }
+                            }
+                        }
+                    }
+                }
+
+                /*for(day in 1..weeks){
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp, 10.dp, 10.dp, 5.dp)
+                    ){
+                        for(i in dayIn..dayIn + 5){
+                            Text(
+                                text = i.toString(),
+                                color = dark,
+                                style = MainText,
+                                modifier = Modifier.clickable{
+                                    onClick.invoke(i)
+                                }
+                            )
+                        }
+                        dayIn += 6
+                    }
+                }*/
+            }
+        }
+    }
+}
+
+// TODO СДЕЛАТЬ КЛИКАБЕЛЬНОЕ ЧИСЛО НА КАЛЕНДАРЕ
+@Composable
+fun NumberOnCalendar(
+    isClicked: MutableState<Boolean>,
+    number: Int,
+    onClick: () -> Unit
+) {
+    val isClickedModifier = if(isClicked.value)
+    Modifier
+        .border(
+            width = 1.dp,
+            color = mainBlue,
+            shape = RoundedCornerShape(20.dp)
+        )
+        .background(
+            color = lightGray,
+            shape = RoundedCornerShape(20.dp)
+        )
+        .padding(2.dp)
+    else Modifier
+    Box(
+        modifier = Modifier
+            .size(30.dp)
+            .then(isClickedModifier),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = number.toString(),
+            style = H2,
+            color = dark,
+            modifier = Modifier.clickable{
+                isClicked.value = !isClicked.value
+                onClick.invoke()
+            }
+        )
+    }
+}
+
+@Preview
+@Composable
+fun CalendarPrev() {
+    val current = LocalContext.current
+    CardCalendar(){
+        Toast.makeText(current, "Число $it", Toast.LENGTH_SHORT).show()
+
     }
 }
