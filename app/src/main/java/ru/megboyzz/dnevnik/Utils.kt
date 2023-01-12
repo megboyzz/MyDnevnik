@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -21,9 +20,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
+import ru.megboyzz.dnevnik.screens.Month
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.Year
+import java.time.temporal.TemporalAdjusters
 
 @Composable
 fun Int.AsPainter() = painterResource(this)
@@ -100,6 +102,19 @@ fun Modifier.drawColoredShadow(
             it.restore()
         }
     }
-} else {
-    this
+} else this
+
+fun getMonthDaysBy(year: Int, month: Month, dayOfWeek: DayOfWeek): List<Int>{
+    var date: LocalDate =
+        Year.of(year).atMonth(month.ordinal + 1).atDay(1).with(TemporalAdjusters.firstInMonth(dayOfWeek))
+    var mi = date.month
+
+    val list = mutableListOf<Int>()
+
+    while (mi.ordinal == month.ordinal) {
+        list.add(date.dayOfMonth)
+        date = date.with(TemporalAdjusters.next(dayOfWeek))
+        mi = date.month
+    }
+    return list
 }

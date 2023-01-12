@@ -1,7 +1,9 @@
 package ru.megboyzz.dnevnik.screens
 
 import android.annotation.SuppressLint
-import android.widget.Toast
+import android.graphics.ColorSpace.Rgb.TransferParameters
+import android.graphics.Point
+import android.graphics.RectF
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -20,21 +22,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,18 +42,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.constraintlayout.compose.Visibility
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
-import ru.megboyzz.dnevnik.navigation.MarksNavRoute
 import ru.megboyzz.dnevnik.ui.theme.*
-import java.util.Calendar
+import java.time.DayOfWeek
+import java.util.*
+
 
 @Composable
 fun MainScaffold(
@@ -294,6 +291,13 @@ val drawerShape = object : Shape {
 
 }
 
+@Preview
+@Composable
+fun text() {
+    Row(Modifier.fillMaxWidth()) {
+        AlmostOutlinedText(text = "Здарова карова")
+    }
+}
 
 @Composable
 fun AlmostOutlinedText(
@@ -786,36 +790,28 @@ fun LastMarkCard(
     }
 }
 
-@Preview
-@Composable
-fun LastMarkPrev() {
-    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        LastMarkCard(
-            subjectName = "Русский язык",
-            mark = 3,
-            date = "03.02.2023",
-            teacher = "Джаналиева Д. Ф.",
-            reason = "диктнант"
-        )
-        LastMarkCard(
-            subjectName = "Алгебра и начала математического анализа",
-            mark = 5,
-            date = "03.08.2023",
-            teacher = "Штрошер С. Н.")
-    }
+enum class Month{
+    January,
+    February,
+    March,
+    April,
+    May,
+    June,
+    July,
+    August,
+    September,
+    October,
+    November,
+    December,
 }
-
-data class CalendarData(
-    val title: String,
-    
-)
 
 
 @Composable
 fun CardCalendar(
-    onClick: (day: Int) -> Unit
+    month: Month,
+    year: Int,
+    onClick: (day: Int) -> Unit,
 ) {
-    //Calendar(Calendar.FEBRUARY)
     val listOfDays = listOf(
         R.string.title_mon.AsString(),
         R.string.title_tue.AsString(),
@@ -824,10 +820,18 @@ fun CardCalendar(
         R.string.title_fri.AsString(),
         R.string.title_sat.AsString(),
     )
+
+    //TODO Сделать сворачивание календаря
+    val expanded = remember {
+        mutableStateOf(true)
+    }
+    val expandedModifier = if(expanded.value) Modifier else Modifier.height(100.dp)
+
     Card(
         backgroundColor = white,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(10.dp),
+        elevation = 5.dp
     ){
         Box(
             modifier = Modifier
@@ -835,7 +839,6 @@ fun CardCalendar(
                 .padding(15.dp)
         ){
             Column(
-                //horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -857,81 +860,74 @@ fun CardCalendar(
                     color = dark,
                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp)
                 )
-                val days = 28
-                val weeks = days / 6
-                var dayIn = 2
-                val startDay = 1
+
+                val offset = 8 - getMonthDaysBy(year, month, DayOfWeek.MONDAY)[0]
+
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp, 10.dp, 10.dp, 5.dp)
+                        .padding(0.dp, 10.dp, 0.dp, 5.dp)
                 ) {
-                    for (i in 1..6) {
-                        //if(i != 7)
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            for(j in i..days step 7){
-                                var text = j.toString()
-                                if(j < startDay)
-                                    text = ""
-                                val isClicked = remember {
-                                    mutableStateOf(false)
-                                }
+                    for(day in DayOfWeek.values()){
+                        if(day != DayOfWeek.SUNDAY)
+                        Column {
+                            val list = getMonthDaysBy(year, month, day)
+                            var len = 0
+                            if(day.ordinal + 1 <= offset && offset !in 6..7){
+                                EmptyNumberOnCalendar()
+                                len++
+                            }
+                            for(i in list.indices){
+                                val data = list[i]
+                                val isClicked = remember { mutableStateOf(false) }
                                 NumberOnCalendar(
                                     isClicked = isClicked,
-                                    number = j
-                                ) { onClick.invoke(j) }
+                                    number = data.toString()
+                                ) {
+                                    expanded.value != expanded.value
+                                    onClick.invoke(data)
+                                }
+                                len++
+                            }
+                            if(day.ordinal + 1 > offset && len < 5){
+                                EmptyNumberOnCalendar()
                             }
                         }
                     }
                 }
 
-                /*for(day in 1..weeks){
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp, 10.dp, 10.dp, 5.dp)
-                    ){
-                        for(i in dayIn..dayIn + 5){
-                            Text(
-                                text = i.toString(),
-                                color = dark,
-                                style = MainText,
-                                modifier = Modifier.clickable{
-                                    onClick.invoke(i)
-                                }
-                            )
-                        }
-                        dayIn += 6
-                    }
-                }*/
+
             }
         }
     }
 }
 
-// TODO СДЕЛАТЬ КЛИКАБЕЛЬНОЕ ЧИСЛО НА КАЛЕНДАРЕ
+@Composable
+fun EmptyNumberOnCalendar(){
+    NumberOnCalendar(isClicked = remember {
+        mutableStateOf(false)
+    }, number = "") {}
+}
+
 @Composable
 fun NumberOnCalendar(
     isClicked: MutableState<Boolean>,
-    number: Int,
+    number: String,
     onClick: () -> Unit
 ) {
     val isClickedModifier = if(isClicked.value)
-    Modifier
-        .border(
-            width = 1.dp,
-            color = mainBlue,
-            shape = RoundedCornerShape(20.dp)
-        )
-        .background(
-            color = lightGray,
-            shape = RoundedCornerShape(20.dp)
-        )
-        .padding(2.dp)
+        Modifier
+            .border(
+                width = 1.dp,
+                color = mainBlue,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(
+                color = lightGray,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(2.dp)
     else Modifier
     Box(
         modifier = Modifier
@@ -940,23 +936,205 @@ fun NumberOnCalendar(
         contentAlignment = Alignment.Center
     ){
         Text(
-            text = number.toString(),
+            text = number,
             style = H2,
             color = dark,
             modifier = Modifier.clickable{
-                isClicked.value = !isClicked.value
-                onClick.invoke()
+                if(number != "") {
+                    isClicked.value = !isClicked.value
+                    onClick.invoke()
+                }
             }
+        )
+    }
+}
+
+@Composable
+fun MonthToggle(
+    startMonth: Month,
+    startYear: Int,
+    onClick: (day: Int) -> Unit
+) {
+
+    var listOfMonth = listOf(
+        R.string.title_january.AsString(),
+        R.string.title_february.AsString(),
+        R.string.title_march.AsString(),
+        R.string.title_april.AsString(),
+        R.string.title_may.AsString(),
+        R.string.title_june.AsString(),
+        R.string.title_july.AsString(),
+        R.string.title_august.AsString(),
+        R.string.title_september.AsString(),
+        R.string.title_october.AsString(),
+        R.string.title_november.AsString(),
+        R.string.title_december.AsString()
+    )
+
+    val month = remember {
+        mutableStateOf(startMonth)
+    }
+    val year = remember {
+        mutableStateOf(startYear)
+    }
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    var defaultPadding = 35.dp
+
+    val isNormal = screenWidth < 500
+    if(!isNormal) defaultPadding *= 4
+    Column(Modifier.padding(defaultPadding, 0.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 20.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    var ind = month.value.ordinal - 1
+                    if(ind == -1){
+                        ind = 11
+                        year.value = year.value - 1
+                    }
+                    month.value = Month.values()[ind]
+                }) {
+                    Image(
+                        painter = R.drawable.ic_month_swipe_left.AsPainter(),
+                        contentDescription = "left",
+                        alignment = Alignment.Center
+                    )
+                }
+                Text(
+                    text = "${listOfMonth[month.value.ordinal]} ${year.value}",
+                    style = H1,
+                    color = dark
+                )
+                IconButton(
+                    onClick = {
+                        var ind = month.value.ordinal + 1
+                        if(ind == 12){
+                            ind = 0
+                            year.value = year.value + 1
+                        }
+                        month.value = Month.values()[ind]
+                    }
+                ) {
+                    Image(
+                        painter = R.drawable.ic_month_swipe_right.AsPainter(),
+                        contentDescription = "right",
+                        alignment = Alignment.Center
+                    )
+                }
+            }
+        }
+        CardCalendar(
+            month = month.value,
+            year = year.value,
+            onClick = onClick
         )
     }
 }
 
 @Preview
 @Composable
-fun CalendarPrev() {
-    val current = LocalContext.current
-    CardCalendar(){
-        Toast.makeText(current, "Число $it", Toast.LENGTH_SHORT).show()
+fun MonthTglPrev() {
+    MonthToggle(
+        startMonth = Month.January, startYear = 2023
+    ){
 
     }
+}
+
+@Composable
+fun UnderlinedText(
+    text: String
+) {
+    Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = text,
+                color = dark,
+                textAlign = TextAlign.Center,
+                style = H1,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        SpacerHeight(height = 2.dp)
+        Divider(color = dark, thickness = 1.dp)
+    }
+}
+
+
+@Preview
+@Composable
+fun UnderlinedTextPrev() {
+    Box(Modifier.background(white)){
+        UnderlinedText(text = "Общая сводка")
+    }
+}
+
+/**
+ * Класс для предоставления данных для круговых диаграм
+ * Идея предоставить диаграмме массив именованных данных
+ * напрмер кол-во оцеок отлично по всем предметам:
+ *  CircleDiagramData(parameterName = "История", count=5) = 38%
+ *  CircleDiagramData(parameterName = "Русский язык", count=4) = 31%
+ *  CircleDiagramData(parameterName = "Химия", count=1) = 8%
+ *  CircleDiagramData(parameterName = "Математика", count=3) = 23%
+ */
+data class CircleDiagramData(
+    val parameterName: String,
+    val count: Int
+)
+
+@Composable
+fun CircleDiagram(
+    diagramData: List<CircleDiagramData>
+) {
+
+    val sum = diagramData.sumOf { it.count }
+
+    Canvas(modifier = Modifier.size(100.dp)) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        drawCircle(color = white)
+        var angle = -45f
+        var isBlue = true
+        for(data in diagramData){
+            val cur = -(360 * data.count.toFloat() / sum.toFloat())
+            drawArc(
+                color = if(isBlue) Color.Blue else Color.Red,
+                startAngle = -angle,
+                sweepAngle = cur,
+                useCenter = true,
+                //style = Stroke(width = 1f, cap = StrokeCap.Round).
+            )
+            isBlue = !isBlue
+            angle -= cur
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CirclePrev() {
+    val list = listOf(
+        CircleDiagramData(parameterName = "История", count=5),
+        CircleDiagramData(parameterName = "Русский язык", count=4),
+        CircleDiagramData(parameterName = "Химия", count=1),
+        CircleDiagramData(parameterName = "Математика", count=3)
+    )
+    CircleDiagram(list)
 }

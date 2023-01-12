@@ -18,7 +18,7 @@
             android:exported="true"
             android:theme="@style/Theme.MyDnevnik"
             android:screenOrientation="fullSensor"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateAlwaysVisible">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
