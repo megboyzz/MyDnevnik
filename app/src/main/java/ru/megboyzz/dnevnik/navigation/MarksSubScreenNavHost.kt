@@ -3,7 +3,6 @@ package ru.megboyzz.dnevnik.navigation
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,6 +12,8 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.screens.*
+import ru.megboyzz.dnevnik.screens.ui.SubScreenData
+import ru.megboyzz.dnevnik.screens.ui.SubScreenNavBar
 
 sealed class MarksNavRoute(override val route: String): BaseNavRote(route){
 

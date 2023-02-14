@@ -1,12 +1,14 @@
-package ru.megboyzz.dnevnik.screens
+package ru.megboyzz.dnevnik.screens.ui
 
 import android.annotation.SuppressLint
-import android.graphics.ColorSpace.Rgb.TransferParameters
-import android.graphics.Point
-import android.graphics.RectF
+import android.graphics.Typeface
+import android.util.Log
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -29,8 +32,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,7 +43,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
@@ -450,11 +458,24 @@ fun DrawerMainButton(
     textColor: Color = white,
     onClick: () -> Unit = {}
 ) {
+    val interactionSource = MutableInteractionSource()
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val scale = remember {
+        androidx.compose.animation.core.Animatable(1f)
+    }
+
+    val animationDuration = 100
+    val scaleDown = 0.9f
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
-            .clickable(onClick = onClick),
+            //TODO Сделать нормальную анимаую клика(не квадратную)
+            .mainClickable(10.dp, onClick::invoke),
+            //.clickable(onClick = onClick),
         verticalArrangement = Arrangement.Center
     ) {
         Row(
@@ -806,6 +827,19 @@ enum class Month{
 }
 
 
+@Preview
+@Composable
+fun CardCalendarPrev() {
+    Column() {
+        CardCalendar(month = Month.March, year = 2023){
+
+        }
+        Button(onClick = { /*TODO*/ }) {
+            Text("hello")
+        }
+    }
+}
+
 @Composable
 fun CardCalendar(
     month: Month,
@@ -863,6 +897,8 @@ fun CardCalendar(
 
                 val offset = 8 - getMonthDaysBy(year, month, DayOfWeek.MONDAY)[0]
 
+                val clicked = mutableListOf<MutableState<Boolean>>()
+
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
@@ -870,8 +906,7 @@ fun CardCalendar(
                         .padding(0.dp, 10.dp, 0.dp, 5.dp)
                 ) {
                     for(day in DayOfWeek.values()){
-                        if(day != DayOfWeek.SUNDAY)
-                        Column {
+                        if(day != DayOfWeek.SUNDAY) Column {
                             val list = getMonthDaysBy(year, month, day)
                             var len = 0
                             if(day.ordinal + 1 <= offset && offset !in 6..7){
@@ -881,11 +916,15 @@ fun CardCalendar(
                             for(i in list.indices){
                                 val data = list[i]
                                 val isClicked = remember { mutableStateOf(false) }
+                                clicked.add(isClicked)
                                 NumberOnCalendar(
                                     isClicked = isClicked,
                                     number = data.toString()
                                 ) {
                                     expanded.value != expanded.value
+                                    for(click in clicked)
+                                        if(click != isClicked)
+                                            click.value = false
                                     onClick.invoke(data)
                                 }
                                 len++
@@ -932,22 +971,27 @@ fun NumberOnCalendar(
     Box(
         modifier = Modifier
             .size(30.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(radius = 15.dp, color = dark),
+                onClick = {
+                    if (number != "") {
+                        isClicked.value = !isClicked.value
+                        onClick.invoke()
+                    }
+                }
+            )
             .then(isClickedModifier),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ){
         Text(
             text = number,
             style = H2,
             color = dark,
-            modifier = Modifier.clickable{
-                if(number != "") {
-                    isClicked.value = !isClicked.value
-                    onClick.invoke()
-                }
-            }
         )
     }
 }
+
 
 @Composable
 fun MonthToggle(
@@ -1094,47 +1138,133 @@ fun UnderlinedTextPrev() {
  *  CircleDiagramData(parameterName = "Химия", count=1) = 8%
  *  CircleDiagramData(parameterName = "Математика", count=3) = 23%
  */
-data class CircleDiagramData(
-    val parameterName: String,
-    val count: Int
-)
-
-@Composable
-fun CircleDiagram(
-    diagramData: List<CircleDiagramData>
-) {
-
-    val sum = diagramData.sumOf { it.count }
-
-    Canvas(modifier = Modifier.size(100.dp)) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        drawCircle(color = white)
-        var angle = -45f
-        var isBlue = true
-        for(data in diagramData){
-            val cur = -(360 * data.count.toFloat() / sum.toFloat())
-            drawArc(
-                color = if(isBlue) Color.Blue else Color.Red,
-                startAngle = -angle,
-                sweepAngle = cur,
-                useCenter = true,
-                //style = Stroke(width = 1f, cap = StrokeCap.Round).
-            )
-            isBlue = !isBlue
-            angle -= cur
-        }
+@OptIn(ExperimentalGraphicsApi::class)
+data class PieChartData(
+    val legend: String,
+    val value: Int
+){
+    val color: Color
+    init {
+        val hue = (0..360).random(kotlin.random.Random(System.nanoTime())).toFloat()
+        Thread.sleep(10)
+        color = Color.hsl(hue, 0.5f, 0.6f)
     }
 }
+
 
 @Preview
 @Composable
 fun CirclePrev() {
     val list = listOf(
-        CircleDiagramData(parameterName = "История", count=5),
-        CircleDiagramData(parameterName = "Русский язык", count=4),
-        CircleDiagramData(parameterName = "Химия", count=1),
-        CircleDiagramData(parameterName = "Математика", count=3)
+        PieChartData(legend = "История", value=5),
+        PieChartData(legend = "Русский язык", value=4),
+        PieChartData(legend = "Химия", value=1),
+        PieChartData(legend = "Математика", value=3)
     )
-    CircleDiagram(list)
+    PieChart(list)
+}
+
+@Composable
+fun PieChart(
+    diagramData: List<PieChartData>
+) {
+
+    // Sum of all the values
+    val sumOfValues = diagramData.sumOf { it.value }
+
+    // Calculate each proportion value
+    val proportions = diagramData.map {
+        it.value.toFloat() / sumOfValues
+    }
+
+    // Convert each proportions to angle
+    val sweepAngles = proportions.map {
+        360 * it
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Canvas(
+            modifier = Modifier.size(200.dp)
+        ) {
+
+            var startAngle = -90f
+
+            for (i in sweepAngles.indices) {
+                drawArc(
+                    color = diagramData[i].color,
+                    startAngle = startAngle,
+                    sweepAngle = sweepAngles[i],
+                    useCenter = true
+                )
+                startAngle += sweepAngles[i]
+                //draw
+            }
+
+        }
+
+        Spacer(modifier = Modifier.width(32.dp))
+        Column() {
+            for (data in diagramData) {
+                DisplayLegend(color = data.color, legend = data.legend)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun DisplayLegend(color: Color, legend: String) {
+
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Divider(
+            modifier = Modifier.width(16.dp),
+            thickness = 4.dp,
+            color = color
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = legend,
+            color = Color.Black
+        )
+    }
+}
+
+
+@Preview
+@Composable
+fun GoodPieChartPrev() {
+    Log.i("HUE", "HUE START")
+    val list = listOf(
+        PieChartData(legend = "История", value=5),
+        PieChartData(legend = "Русский язык", value=4),
+        PieChartData(legend = "Химия", value=1),
+        PieChartData(legend = "Математика", value=3),
+        //PieChartData(legend = "Физика", value=10)
+    )
+    Log.i("HUE", "HUE END")
+    GoodPieChart(diagramData = list)
+}
+
+@Composable
+fun GoodPieChart(
+    diagramData: List<PieChartData>
+) {
+    lateinit var chart: DataPieChart
+    Column {
+        AndroidView(factory = { context ->
+            chart = DataPieChart(context)
+            chart
+        },
+            modifier = Modifier
+                .wrapContentSize()
+                .padding(5.dp),
+            update = { chart.updatePieChartWithData(diagramData) }
+        )
+
+
+    }
 }

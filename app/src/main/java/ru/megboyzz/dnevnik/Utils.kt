@@ -1,11 +1,15 @@
 package ru.megboyzz.dnevnik
 
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -21,7 +25,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
-import ru.megboyzz.dnevnik.screens.Month
+import ru.megboyzz.dnevnik.screens.ui.Month
+import ru.megboyzz.dnevnik.ui.theme.dark
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Year
@@ -118,3 +123,16 @@ fun getMonthDaysBy(year: Int, month: Month, dayOfWeek: DayOfWeek): List<Int>{
     }
     return list
 }
+
+@Composable
+fun Modifier.mainClickable(
+    radius: Dp,
+    onClick: () -> Unit
+) = this.clickable(
+    interactionSource = remember { MutableInteractionSource() },
+    indication = rememberRipple(
+        radius = radius,
+        color = dark
+    ),
+    onClick = onClick
+)

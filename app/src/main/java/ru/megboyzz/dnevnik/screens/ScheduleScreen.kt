@@ -6,7 +6,7 @@ import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
-import ru.megboyzz.dnevnik.navigation.AppNavRoute
+import ru.megboyzz.dnevnik.screens.ui.MainScaffold
 
 @Composable
 fun ScheduleScreen(
