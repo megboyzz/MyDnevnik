@@ -176,7 +176,8 @@ fun BottomNavButton(
     color: Color = white,
     onClick: () -> Unit,
 ) {
-    Box(Modifier.mainClickable(onClick = onClick, radius = 30.dp).padding(10.dp)) {
+    //Возможно стоит убрать анимацию клика
+    Box(Modifier.mainClickable(onClick = onClick, radius = 20.dp).padding(10.dp)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -193,111 +194,6 @@ fun BottomNavButton(
                 overflow = TextOverflow.Ellipsis
             )
         }
-    }
-}
-
-
-
-@SuppressLint("CoroutineCreationDuringComposition")
-@Composable
-fun DrawerContent(
-    navController: NavController,
-    scaffoldState: ScaffoldState
-) {
-
-    // УЖАСНЫЙ КОСТЫЛЬ ДЛЯ ПЕРЕХОДОВ С ПОМОЩЬЮ СТЕЙТОВ TODO - УБРАТЬ
-    val goToMarks = remember { mutableStateOf(false) }
-    val goToHw = remember { mutableStateOf(false) }
-    val goToSchedule = remember { mutableStateOf(false) }
-
-    val scope = rememberCoroutineScope()
-    if(goToMarks.value){
-        navController.navigate(AppNavRoute.Marks)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-    if(goToHw.value){
-        navController.navigate(AppNavRoute.HomeWorks)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-    if(goToSchedule.value){
-        navController.navigate(AppNavRoute.Schedule)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-
-    Column(
-        modifier = Modifier
-            .width(260.dp)
-            .fillMaxSize()
-            .padding(10.dp),
-        horizontalAlignment = Alignment.Start
-    ){
-        SpacerHeight(10.dp)
-        ProfileCard(painter = R.drawable.ic_author.AsPainter())
-        SpacerHeight(15.dp)
-        AlmostOutlinedText(text = "Идет 3-я четверть")
-        SpacerHeight(20.dp)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-            modifier = Modifier.padding(5.dp, 0.dp)
-        ) {
-            DrawerMainButton(
-                icon = R.drawable.ic_marks.AsPainter(),
-                text = R.string.title_marks.AsString()
-            ) { goToMarks.value = true  }
-            DrawerMainButton(
-                icon = R.drawable.ic_homework.AsPainter(),
-                text = R.string.title_hw.AsString()
-            ) { goToHw.value = true  }
-            DrawerMainButton(
-                icon = R.drawable.ic_schedule.AsPainter(),
-                text = R.string.title_schedule.AsString()
-            ) { goToSchedule.value = true }
-            DrawerMainButton(
-                icon = R.drawable.ic_settings.AsPainter(),
-                text = R.string.title_settings.AsString()
-            ) { /* TODO */ }
-        }
-        Spacer(Modifier.weight(1f))
-        Divider(color = white, thickness = 1.dp)
-        SpacerHeight(5.dp)
-        Column(Modifier.padding(5.dp, 0.dp)) {
-            DrawerMainButton(
-                icon = R.drawable.ic_exit.AsPainter(),
-                text = R.string.title_leave_from_acconut.AsString()
-            ) { /* TODO */ }
-        }
-    }
-}
-
-val drawerShape = object : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline.Rounded {
-
-        val radius = CornerRadius(30f, 30f)
-        val nullRadius = CornerRadius.Zero
-
-        return Outline.Rounded(RoundRect(
-            left = 0f,
-            top = 0f,
-            right = size.width * 26 / 36,
-            bottom = size.height,
-            topLeftCornerRadius = nullRadius,
-            topRightCornerRadius = radius,
-            bottomRightCornerRadius = radius,
-            bottomLeftCornerRadius = nullRadius
-        ))
-    }
-
-}
-
-@Preview
-@Composable
-fun text() {
-    Row(Modifier.fillMaxWidth()) {
-        AlmostOutlinedText(text = "Здарова карова")
     }
 }
 
@@ -398,17 +294,19 @@ fun MainTextField(
     OutlinedTextField(
         value = value.value,
         onValueChange = onChange,
-        label = { Text(
-            text = label,
-            style = H2,
-            color = dark
-        ) },
+        label = {
+            Text(
+                text = label,
+                style = H2,
+                color = dark
+            )
+        },
         shape = RoundedCornerShape(10.dp),
         textStyle = H2,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             textColor = dark,
-            unfocusedBorderColor = if(isError.value) falseColor else mainBlue,
-            focusedBorderColor = if(isError.value) falseColor else mainBlue,
+            unfocusedBorderColor = if (isError.value) falseColor else mainBlue,
+            focusedBorderColor = if (isError.value) falseColor else mainBlue,
             focusedLabelColor = dark,
             unfocusedLabelColor = dark,
             cursorColor = dark
@@ -418,20 +316,20 @@ fun MainTextField(
             keyboardType = keyboardType
         ),
         visualTransformation =
-        if(keyboardType == KeyboardType.Password) {
+        if (keyboardType == KeyboardType.Password) {
             if (passwordVisible)
                 VisualTransformation.None
             else
                 PasswordVisualTransformation()
-        }else VisualTransformation.None,
+        } else VisualTransformation.None,
         trailingIcon = {
-            if(keyboardType == KeyboardType.Password){
+            if (keyboardType == KeyboardType.Password) {
                 val image = if (passwordVisible)
                     Icons.Filled.Visibility
                 else Icons.Filled.VisibilityOff
 
-                IconButton(onClick = {passwordVisible = !passwordVisible}){
-                    Icon(imageVector  = image, "")
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = image, "")
                 }
             }
         },
@@ -444,51 +342,6 @@ fun MainTextField(
             .fillMaxWidth(),
     )
 }
-
-@OptIn(ExperimentalAnimationApi::class)
-@Preview
-@Composable
-fun DrawerPrev() {
-    val scaffoldState = rememberScaffoldState()
-    val navController = rememberAnimatedNavController()
-    Box(Modifier.background(mainBlue)) {
-        DrawerContent(navController = navController, scaffoldState = scaffoldState)
-    }
-
-}
-
-@Composable
-fun DrawerMainButton(
-    icon: Painter,
-    text: String,
-    textColor: Color = white,
-    onClick: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(30.dp)
-            //TODO Сделать нормальную анимаую клика(не квадратную)
-            .mainClickable(onClick = onClick),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start
-        ){
-            Image(
-                painter = icon,
-                contentDescription = "icon"
-            )
-            SpacerWidth(13.dp)
-            Text(
-                text = text,
-                style = H2,
-                color = textColor
-            )
-        }
-    }
-}
-
 
 @Composable
 fun MainCheckbox(
@@ -840,55 +693,6 @@ fun CardWithAverage(
     ) { content() }
 }
 
-
-@Preview
-@Composable
-fun CardWithAveragePrev() {
-    CardWithAverage(
-        averageMark = 4.33f,
-        resultMark = 4f
-    ) {
-        Box(Modifier.padding(10.dp)){
-            Text("hehe")
-        }
-    }
-}
-
-@Preview
-@Composable
-fun BaseCardPrev() {
-    Box(
-        Modifier
-            .fillMaxSize()
-    ){
-        Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-        ) {
-
-            Card(
-                backgroundColor = white,
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = mainBlue
-                ),
-                modifier = Modifier.defaultMinSize(minWidth = 300.dp)
-            ) {
-                Box(
-                    Modifier
-                        .size(50.dp)
-                        .background(Color.Red)){}
-            }
-        }
-    }
-}
-
-
-
 @Composable
 fun LastMarkCard(
     subjectName: String,
@@ -960,20 +764,6 @@ enum class Month{
     October,
     November,
     December,
-}
-
-
-@Preview
-@Composable
-fun CardCalendarPrev() {
-    Column() {
-        CardCalendar(month = Month.March, year = 2023){
-
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text("hello")
-        }
-    }
 }
 
 @Composable
@@ -1221,16 +1011,6 @@ fun MonthToggle(
     }
 }
 
-@Preview
-@Composable
-fun MonthTglPrev() {
-    MonthToggle(
-        startMonth = Month.January, startYear = 2023
-    ){
-
-    }
-}
-
 @Composable
 fun UnderlinedText(
     text: String
@@ -1256,15 +1036,6 @@ fun UnderlinedText(
     }
 }
 
-
-@Preview
-@Composable
-fun UnderlinedTextPrev() {
-    Box(Modifier.background(white)){
-        UnderlinedText(text = "Общая сводка")
-    }
-}
-
 /**
  * Класс для предоставления данных для круговых диаграм
  * Идея предоставить диаграмме массив именованных данных
@@ -1285,32 +1056,6 @@ data class PieChartData(
         Thread.sleep(10)
         color = Color.hsl(hue, 0.5f, 0.6f)
     }
-}
-
-
-@Preview
-@Composable
-fun CirclePrev() {
-    val list = listOf(
-        PieChartData(legend = "История", value=5),
-        PieChartData(legend = "Русский язык", value=4),
-        PieChartData(legend = "Химия", value=1),
-        PieChartData(legend = "Математика", value=3)
-    )
-    PieChart(list)
-}
-
-
-@Preview
-@Composable
-fun GoodPieChartPrev() {
-    val list = listOf(
-        PieChartData(legend = "История", value=5),
-        PieChartData(legend = "Русский язык", value=4),
-        PieChartData(legend = "Химия", value=1),
-        PieChartData(legend = "Математика", value=3),
-    )
-    PieChart(diagramData = list)
 }
 
 @Composable
