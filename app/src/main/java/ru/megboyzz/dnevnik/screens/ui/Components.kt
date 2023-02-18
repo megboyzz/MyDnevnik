@@ -37,10 +37,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
@@ -174,21 +176,23 @@ fun BottomNavButton(
     color: Color = white,
     onClick: () -> Unit,
 ) {
-    Column(
-        Modifier
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = icon,
-            contentDescription = "",
-            modifier = Modifier.padding(5.dp)
-        )
-        Text(
-            text = text,
-            style = MainText,
-            color = color
-        )
+    Box(Modifier.mainClickable(onClick = onClick, radius = 30.dp).padding(10.dp)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = "",
+                modifier = Modifier.padding(5.dp)
+            )
+            Text(
+                text = text,
+                style = MainText,
+                color = color,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -441,6 +445,18 @@ fun MainTextField(
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
+@Preview
+@Composable
+fun DrawerPrev() {
+    val scaffoldState = rememberScaffoldState()
+    val navController = rememberAnimatedNavController()
+    Box(Modifier.background(mainBlue)) {
+        DrawerContent(navController = navController, scaffoldState = scaffoldState)
+    }
+
+}
+
 @Composable
 fun DrawerMainButton(
     icon: Painter,
@@ -448,24 +464,12 @@ fun DrawerMainButton(
     textColor: Color = white,
     onClick: () -> Unit = {}
 ) {
-    val interactionSource = MutableInteractionSource()
-
-    val coroutineScope = rememberCoroutineScope()
-
-    val scale = remember {
-        androidx.compose.animation.core.Animatable(1f)
-    }
-
-    val animationDuration = 100
-    val scaleDown = 0.9f
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
             //TODO Сделать нормальную анимаую клика(не квадратную)
-            .mainClickable(10.dp, onClick::invoke),
-            //.clickable(onClick = onClick),
+            .mainClickable(onClick = onClick),
         verticalArrangement = Arrangement.Center
     ) {
         Row(

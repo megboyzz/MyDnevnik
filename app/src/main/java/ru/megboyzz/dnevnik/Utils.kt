@@ -126,7 +126,7 @@ fun getMonthDaysBy(year: Int, month: Month, dayOfWeek: DayOfWeek): List<Int>{
 
 @Composable
 fun Modifier.mainClickable(
-    radius: Dp,
+    radius: Dp = Dp.Unspecified,
     onClick: () -> Unit
 ) = this.clickable(
     interactionSource = remember { MutableInteractionSource() },
