@@ -62,4 +62,6 @@
     <string name="title_next_lesson">Следующий урок</string>
     <string name="title_lesson">Урок</string>
     <string name="title_reason">Причина:</string>
+    <string name="title_result_mark">Итог</string>
+    <string name="title_average_mark">Ср. балл</string>
 </resources>

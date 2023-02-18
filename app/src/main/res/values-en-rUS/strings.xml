@@ -63,4 +63,6 @@
     <string name="title_next_lesson">The next lesson</string>
     <string name="title_lesson">Lesson</string>
     <string name="title_reason">"Reason: "</string>
+    <string name="title_result_mark">Result</string>
+    <string name="title_average_mark">Average</string>
 </resources>

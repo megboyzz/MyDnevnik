@@ -1,10 +1,6 @@
 package ru.megboyzz.dnevnik.screens.ui
 
 import android.annotation.SuppressLint
-import android.graphics.Typeface
-import android.util.Log
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -45,12 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
@@ -752,6 +742,148 @@ fun SubScreenNavBar(
     }
 }
 
+//Базовая карточка для оценок, карточек с диаграммами
+@Composable
+fun BaseCard(
+    minWidth: Dp = 300.dp,
+    //Слой над карточкой
+    nextLayer: @Composable () -> Unit = {},
+    content: @Composable () -> Unit
+){
+    val shape = RoundedCornerShape(10.dp)
+    //Расположение слоя регулируется этим алигментом
+    Box(contentAlignment = Alignment.TopEnd) {
+        Box(
+            Modifier
+                .clip(shape)
+                .background(
+                    color = white,
+                    shape = shape
+                )
+                .defaultMinSize(minWidth)
+                .border(
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = mainBlue,
+                    ),
+                    shape = shape
+                )
+        ) { content() }
+        nextLayer()
+    }
+}
+
+@Composable
+fun AverageText(
+    title: String,
+    mark: String,
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = title,
+            style = Mini,
+            color = white
+        )
+        Text(
+            text = mark,
+            style = MainText,
+            color = white
+        )
+    }
+}
+
+@Composable
+fun CardWithAverage(
+    averageMark: Float,
+    resultMark: Float,
+    minWidth: Dp = 300.dp,
+    content: @Composable () -> Unit
+) {
+    BaseCard(
+        minWidth = minWidth,
+        nextLayer = {
+            Box(
+                modifier = Modifier
+                    .size(100.dp, 50.dp)
+                    .background(color = mainBlue, shape = RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(10.dp)),
+            ){
+                Box(
+                    modifier = Modifier.size(50.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AverageText(title = R.string.title_average_mark.AsString(), mark = averageMark.toString())
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .fillMaxSize()
+                    .background(color = totalMarkColor, shape = RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(10.dp)),
+                contentAlignment = Alignment.Center
+            ){
+                AverageText(
+                    title = R.string.title_result_mark.AsString(),
+                    mark = resultMark.toString()
+                )
+            }
+        }
+    ) { content() }
+}
+
+
+@Preview
+@Composable
+fun CardWithAveragePrev() {
+    CardWithAverage(
+        averageMark = 4.33f,
+        resultMark = 4f
+    ) {
+        Box(Modifier.padding(10.dp)){
+            Text("hehe")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun BaseCardPrev() {
+    Box(
+        Modifier
+            .fillMaxSize()
+    ){
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+        ) {
+
+            Card(
+                backgroundColor = white,
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = mainBlue
+                ),
+                modifier = Modifier.defaultMinSize(minWidth = 300.dp)
+            ) {
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .background(Color.Red)){}
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun LastMarkCard(
@@ -1164,107 +1296,44 @@ fun CirclePrev() {
     PieChart(list)
 }
 
-@Composable
-fun PieChart(
-    diagramData: List<PieChartData>
-) {
-
-    // Sum of all the values
-    val sumOfValues = diagramData.sumOf { it.value }
-
-    // Calculate each proportion value
-    val proportions = diagramData.map {
-        it.value.toFloat() / sumOfValues
-    }
-
-    // Convert each proportions to angle
-    val sweepAngles = proportions.map {
-        360 * it
-    }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Canvas(
-            modifier = Modifier.size(200.dp)
-        ) {
-
-            var startAngle = -90f
-
-            for (i in sweepAngles.indices) {
-                drawArc(
-                    color = diagramData[i].color,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngles[i],
-                    useCenter = true
-                )
-                startAngle += sweepAngles[i]
-                //draw
-            }
-
-        }
-
-        Spacer(modifier = Modifier.width(32.dp))
-        Column() {
-            for (data in diagramData) {
-                DisplayLegend(color = data.color, legend = data.legend)
-            }
-        }
-    }
-
-}
-
-@Composable
-fun DisplayLegend(color: Color, legend: String) {
-
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Divider(
-            modifier = Modifier.width(16.dp),
-            thickness = 4.dp,
-            color = color
-        )
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Text(
-            text = legend,
-            color = Color.Black
-        )
-    }
-}
-
 
 @Preview
 @Composable
 fun GoodPieChartPrev() {
-    Log.i("HUE", "HUE START")
     val list = listOf(
         PieChartData(legend = "История", value=5),
         PieChartData(legend = "Русский язык", value=4),
         PieChartData(legend = "Химия", value=1),
         PieChartData(legend = "Математика", value=3),
-        //PieChartData(legend = "Физика", value=10)
     )
-    Log.i("HUE", "HUE END")
-    GoodPieChart(diagramData = list)
+    PieChart(diagramData = list)
 }
 
 @Composable
-fun GoodPieChart(
+fun PieChart(
     diagramData: List<PieChartData>
 ) {
     lateinit var chart: DataPieChart
     Column {
-        AndroidView(factory = { context ->
-            chart = DataPieChart(context)
-            chart
-        },
+        AndroidView(
+            factory = { context ->
+                chart = DataPieChart(context)
+                chart
+            },
             modifier = Modifier
                 .wrapContentSize()
                 .padding(5.dp),
             update = { chart.updatePieChartWithData(diagramData) }
         )
-
-
     }
 }
+
+
+@Composable
+fun PieChartCard(
+    title: String,
+    data: List<PieChartData>
+) {
+
+}
+
