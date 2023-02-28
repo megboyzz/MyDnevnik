@@ -92,7 +92,7 @@ fun MonthToggler(calendarState: CalendarState) {
     }
 }
 
-
+//TODO доделать свертку календаря, он почти идеально работает
 @Composable
 fun NiceCalendar(
     startMonth: YearMonth,
@@ -117,7 +117,7 @@ fun NiceCalendar(
 
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
-    Column() {
+    Column {
 
         MonthToggler(calendarState = state)
 
@@ -134,12 +134,11 @@ fun NiceCalendar(
                         onClick(day, startMonth, startMonth.year)
                     }
                 },
-                monthHeader = { month ->
-                    DaysOfWeekTitle(daysOfWeek = DayOfWeek.values().asList())
-                },
+                monthHeader = { DaysOfWeekTitle(daysOfWeek = DayOfWeek.values().asList()) },
                 modifier = Modifier.padding(10.dp)
             )
             else
+            //TODO по возможности устранить повторы
             WeekCalendar(
                 state = weekState,
                 weekHeader = { _ ->
