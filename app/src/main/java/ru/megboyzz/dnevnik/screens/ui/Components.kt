@@ -1,11 +1,13 @@
 package ru.megboyzz.dnevnik.screens.ui
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,9 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -38,11 +37,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
@@ -177,7 +174,10 @@ fun BottomNavButton(
     onClick: () -> Unit,
 ) {
     //Возможно стоит убрать анимацию клика
-    Box(Modifier.mainClickable(onClick = onClick, radius = 20.dp).padding(10.dp)) {
+    Box(
+        Modifier
+            .mainClickable(onClick = onClick, radius = 20.dp)
+            .padding(10.dp)) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -655,8 +655,8 @@ fun AverageText(
 
 @Composable
 fun CardWithAverage(
-    averageMark: Float,
-    resultMark: Float,
+    averageMark: Float?, 
+    resultMark: Float?,
     minWidth: Dp = 300.dp,
     content: @Composable () -> Unit
 ) {
@@ -673,7 +673,10 @@ fun CardWithAverage(
                     modifier = Modifier.size(50.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    AverageText(title = R.string.title_average_mark.AsString(), mark = averageMark.toString())
+                    AverageText(
+                        title = R.string.title_average_mark.AsString(), 
+                        mark = if(averageMark != null) "%.2f".format(averageMark).replace(",", ".") else "-"
+                    )
                 }
             }
             Box(
@@ -686,7 +689,7 @@ fun CardWithAverage(
             ){
                 AverageText(
                     title = R.string.title_result_mark.AsString(),
-                    mark = resultMark.toString()
+                    mark = if(resultMark != null) resultMark.toString() else "-"
                 )
             }
         }
@@ -701,15 +704,7 @@ fun LastMarkCard(
     teacher: String,
     reason: String = "null"
 ) {
-    Card(
-        backgroundColor = white,
-        shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            color = mainBlue
-        ),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    BaseCard {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.padding(15.dp)
@@ -766,6 +761,84 @@ enum class Month{
     December,
 }
 
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NewCardCalendar(
+    month: Month,
+    year: Int,
+    onClick: (day: Int) -> Unit,
+) {
+    val listOfDays = listOf(
+        R.string.title_mon.AsString(),
+        R.string.title_tue.AsString(),
+        R.string.title_wed.AsString(),
+        R.string.title_thu.AsString(),
+        R.string.title_fri.AsString(),
+        R.string.title_sat.AsString(),
+    )
+
+    //TODO Сделать сворачивание календаря
+    val expanded = remember {
+        mutableStateOf(true)
+    }
+
+    Card(
+        backgroundColor = white,
+        modifier = Modifier.defaultMinSize(minWidth = 300.dp),
+        shape = RoundedCornerShape(10.dp),
+        elevation = 5.dp
+    ){
+        Column(
+            modifier = Modifier.padding(0.dp)
+        ) {
+            /*LazyRow(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(10.dp, 10.dp, 10.dp, 5.dp)
+                    .defaultMinSize(minWidth = 300.dp)
+            ){
+                items(listOfDays){
+                    Text(
+                        text = it,
+                        style = MainText,
+                        color = dark
+                    )
+                }
+            }
+            Box(
+                Modifier
+                    .defaultMinSize(minWidth = 320.dp)
+                    .height(1.dp)
+                    .background(Color.Black))*/
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(count = 6),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+            ){
+                items(listOfDays){
+                    Text(
+                        text = it,
+                        style = MainText,
+                        color = dark
+                    )
+                }
+                items((1..30).toList()){
+                    NumberOnCalendar(
+                        isClicked = remember { mutableStateOf(false) },
+                        number = it.toString()
+                    ) {
+
+                    }
+                }
+            }
+
+            val offset = 8 - getMonthDaysBy(year, month, DayOfWeek.MONDAY)[0]
+
+            val clicked = mutableListOf<MutableState<Boolean>>()
+        }
+    }
+}
+
 @Composable
 fun CardCalendar(
     month: Month,
@@ -785,11 +858,10 @@ fun CardCalendar(
     val expanded = remember {
         mutableStateOf(true)
     }
-    val expandedModifier = if(expanded.value) Modifier else Modifier.height(100.dp)
 
     Card(
         backgroundColor = white,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.defaultMinSize(minWidth = 200.dp),
         shape = RoundedCornerShape(10.dp),
         elevation = 5.dp
     ){
@@ -824,6 +896,8 @@ fun CardCalendar(
                 val offset = 8 - getMonthDaysBy(year, month, DayOfWeek.MONDAY)[0]
 
                 val clicked = mutableListOf<MutableState<Boolean>>()
+                var lastClicked = 0
+                var lastInd = 0
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -831,6 +905,7 @@ fun CardCalendar(
                         .fillMaxWidth()
                         .padding(0.dp, 10.dp, 0.dp, 5.dp)
                 ) {
+                    if(expanded.value)
                     for(day in DayOfWeek.values()){
                         if(day != DayOfWeek.SUNDAY) Column {
                             val list = getMonthDaysBy(year, month, day)
@@ -848,6 +923,8 @@ fun CardCalendar(
                                     number = data.toString()
                                 ) {
                                     expanded.value != expanded.value
+                                    lastClicked = data
+                                    lastInd = i
                                     for(click in clicked)
                                         if(click != isClicked)
                                             click.value = false
@@ -860,9 +937,10 @@ fun CardCalendar(
                             }
                         }
                     }
+                    else{
+
+                    }
                 }
-
-
             }
         }
     }
@@ -955,7 +1033,7 @@ fun MonthToggle(
 
     val isNormal = screenWidth < 500
     if(!isNormal) defaultPadding *= 4
-    Column(Modifier.padding(defaultPadding, 0.dp)) {
+    Column() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1036,53 +1114,133 @@ fun UnderlinedText(
     }
 }
 
-/**
- * Класс для предоставления данных для круговых диаграм
- * Идея предоставить диаграмме массив именованных данных
- * напрмер кол-во оцеок отлично по всем предметам:
- *  CircleDiagramData(parameterName = "История", count=5) = 38%
- *  CircleDiagramData(parameterName = "Русский язык", count=4) = 31%
- *  CircleDiagramData(parameterName = "Химия", count=1) = 8%
- *  CircleDiagramData(parameterName = "Математика", count=3) = 23%
- */
-@OptIn(ExperimentalGraphicsApi::class)
-data class PieChartData(
-    val legend: String,
-    val value: Int
-){
-    val color: Color
-    init {
-        val hue = (0..360).random(kotlin.random.Random(System.nanoTime())).toFloat()
-        Thread.sleep(10)
-        color = Color.hsl(hue, 0.5f, 0.6f)
+@Composable
+fun AllMarksCard(
+    subjectName: String,
+    teacher: String?,
+    marks: List<Int>?,
+    resultMark: Float?
+) {
+    CardWithAverage(
+        averageMark = marks?.average()?.toFloat(),
+        resultMark = resultMark
+    ) {
+        Box(Modifier.padding(15.dp, 15.dp)) {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = R.drawable.ic_subject.AsPainter(),
+                        contentDescription = ""
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = subjectName,
+                            color = dark,
+                            style = MainText,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = teacher ?: "-",
+                            color = dark,
+                            style = MainText,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+
+                Divider(
+                    color = dark,
+                    thickness = 1.dp,
+                    modifier = Modifier.padding(
+                        top = 15.dp,
+                        bottom = 10.dp,
+                    )
+                )
+                
+                if(marks != null)
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(marks){
+                            MarkInBox(mark = it)
+                        }
+                    }
+                else {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        EmptyMessage(message = R.string.title_no_marks.AsString())
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun PieChart(
-    diagramData: List<PieChartData>
+fun MarkInBox(mark: Int) {
+    Box(
+        modifier = Modifier
+            .size(19.dp)
+            .fillMaxSize()
+            .background(
+                color = mainBlue,
+                shape = RoundedCornerShape(2.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ){
+        Text(
+            text = mark.toString(),
+            color = white
+        )
+    }
+}
+
+@Composable
+fun ContentMessage(
+    message: String,
+    isFine: Boolean = true
 ) {
-    lateinit var chart: DataPieChart
-    Column {
-        AndroidView(
-            factory = { context ->
-                chart = DataPieChart(context)
-                chart
-            },
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(5.dp),
-            update = { chart.updatePieChartWithData(diagramData) }
+    Column(
+        modifier = Modifier
+            .defaultMinSize(200.dp)
+            .padding(25.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = if(isFine) R.drawable.ic_smile.AsPainter() else R.drawable.ic_sad_smile.AsPainter(),
+            contentDescription = ""
+        )
+        SpacerHeight(height = 10.dp)
+        Text(
+            text = message,
+            style = MainText,
+            color = dark
         )
     }
 }
 
 
 @Composable
-fun PieChartCard(
-    title: String,
-    data: List<PieChartData>
+fun EmptyMessage(message: String) = ContentMessage(message = message, isFine = false)
+
+@Composable
+fun FineMessage(message: String) = ContentMessage(message = message)
+
+@Composable
+fun MessageCard(
+    message: String,
+    content: @Composable () -> Unit
 ) {
+    BaseCard {
 
+    }
 }
-

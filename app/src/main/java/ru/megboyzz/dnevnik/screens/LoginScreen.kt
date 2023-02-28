@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.screens.ui.LoginScreenContent
 
+//TODO Переверстать экран входа
 @Composable
 fun LoginScreen(navController: NavController) {
 

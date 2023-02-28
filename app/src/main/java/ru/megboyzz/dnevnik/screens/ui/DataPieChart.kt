@@ -22,9 +22,10 @@ class DataPieChart(context: Context) : PieChart(context) {
             LayoutParams.MATCH_PARENT,
         )
         setUsePercentValues(true)
+        setEntryLabelTextSize(10f)
+
         description.isEnabled = false
         isDrawHoleEnabled = false
-        
         legend.isEnabled = false
         legend.orientation = Legend.LegendOrientation.VERTICAL
         legend.horizontalAlignment =

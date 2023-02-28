@@ -11,6 +11,7 @@ import ru.megboyzz.dnevnik.navigation.AppNavHost
 import ru.megboyzz.dnevnik.ui.theme.*
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
