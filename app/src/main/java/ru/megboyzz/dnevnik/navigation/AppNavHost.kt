@@ -38,13 +38,6 @@ sealed class AppNavRoute(override val route: String): BaseNavRote(route){
 @Composable
 fun AppNavHost(){
 
-    /*val activity = LocalContext.current as MainActivity
-
-    val application = activity.application as App
-
-    val viewModel: AppViewModel = viewModel(factory = AppViewModelFactory(application))*/
-
-
     val scaffoldState = rememberScaffoldState()
     val navController = rememberAnimatedNavController()
 

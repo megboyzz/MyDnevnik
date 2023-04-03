@@ -1,4 +1,4 @@
-package ru.megboyzz.dnevnik.screens.ui
+package ru.megboyzz.dnevnik.screens.ui.piechart
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -12,6 +12,8 @@ import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.ui.theme.H2
 import ru.megboyzz.dnevnik.ui.theme.dark
 import ru.megboyzz.dnevnik.R
+import ru.megboyzz.dnevnik.screens.ui.BaseCard
+import ru.megboyzz.dnevnik.screens.ui.EmptyMessage
 
 /**
  * Класс для предоставления данных для круговых диаграм

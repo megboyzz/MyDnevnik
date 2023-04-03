@@ -1,8 +1,7 @@
-package ru.megboyzz.dnevnik.screens.ui
+package ru.megboyzz.dnevnik.screens.ui.piechart
 
 import android.content.Context
 import android.graphics.Typeface
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -12,7 +11,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
-import ru.megboyzz.dnevnik.ui.theme.MainText
 
 class DataPieChart(context: Context) : PieChart(context) {
     

@@ -8,7 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +16,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ru.megboyzz.dnevnik.screens.ui.*
+import ru.megboyzz.dnevnik.screens.ui.calendar.NiceCalendar
+import ru.megboyzz.dnevnik.screens.ui.piechart.PieChart
+import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartCard
+import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartData
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
 import ru.megboyzz.dnevnik.ui.theme.white
 import java.time.YearMonth
@@ -100,16 +104,6 @@ fun BaseCardPrev() {
                         .background(Color.Red)){}
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun MonthTglPrev() {
-    MonthToggle(
-        startMonth = Month.January, startYear = 2023
-    ){
-
     }
 }
 
@@ -219,20 +213,14 @@ fun AllMarksCardPrev1() {
 
 @Preview
 @Composable
-fun NewCalendarPrev() {
-    NewCardCalendar(
-        month = Month.January,
-        year = 2023
-    ){
-
-    }
-}
-
-@Preview
-@Composable
 fun NiceCalendarPrev() {
+
+    var startMonth by remember{
+        mutableStateOf(YearMonth.now())
+    }
+
     NiceCalendar(
-        startMonth = YearMonth.now()
+        currentMonth = startMonth,
     ){ day, month, year ->
 
     }

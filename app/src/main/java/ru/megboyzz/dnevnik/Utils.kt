@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -24,14 +22,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.kizitonwose.calendar.compose.CalendarLayoutInfo
+import com.kizitonwose.calendar.compose.CalendarState
+import com.kizitonwose.calendar.core.CalendarMonth
+import kotlinx.coroutines.flow.filterNotNull
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
-import ru.megboyzz.dnevnik.screens.ui.Month
 import ru.megboyzz.dnevnik.ui.theme.dark
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.Year
-import java.time.temporal.TemporalAdjusters
-import java.util.*
 
 @Composable
 fun Int.AsPainter() = painterResource(this)
@@ -110,21 +106,6 @@ fun Modifier.drawColoredShadow(
     }
 } else this
 
-fun getMonthDaysBy(year: Int, month: Month, dayOfWeek: DayOfWeek): List<Int>{
-    var date: LocalDate =
-        Year.of(year).atMonth(month.ordinal + 1).atDay(1).with(TemporalAdjusters.firstInMonth(dayOfWeek))
-    var mi = date.month
-
-    val list = mutableListOf<Int>()
-
-    while (mi.ordinal == month.ordinal) {
-        list.add(date.dayOfMonth)
-        date = date.with(TemporalAdjusters.next(dayOfWeek))
-        mi = date.month
-    }
-    return list
-}
-
 @Composable
 fun Modifier.mainClickable(
     radius: Dp = Dp.Unspecified,
@@ -138,4 +119,33 @@ fun Modifier.mainClickable(
     onClick = onClick
 )
 
+@Composable
+fun rememberFirstMostVisibleMonth(
+    state: CalendarState,
+    viewportPercent: Float = 50f,
+): CalendarMonth {
+    val visibleMonth = remember(state) { mutableStateOf(state.firstVisibleMonth) }
+    LaunchedEffect(state) {
+        snapshotFlow { state.layoutInfo.firstMostVisibleMonth(viewportPercent) }
+            .filterNotNull()
+            .collect { month -> visibleMonth.value = month }
+    }
+    return visibleMonth.value
+}
+
+
+private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
+    return if (visibleMonthsInfo.isEmpty()) {
+        null
+    } else {
+        val viewportSize = (viewportEndOffset + viewportStartOffset) * viewportPercent / 100f
+        visibleMonthsInfo.firstOrNull { itemInfo ->
+            if (itemInfo.offset < 0) {
+                itemInfo.offset + itemInfo.size >= viewportSize
+            } else {
+                itemInfo.size - itemInfo.offset >= viewportSize
+            }
+        }?.month
+    }
+}
 
