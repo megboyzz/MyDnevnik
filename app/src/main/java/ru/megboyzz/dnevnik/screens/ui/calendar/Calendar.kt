@@ -1,6 +1,5 @@
 package ru.megboyzz.dnevnik.screens.ui.calendar
 
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,6 +26,7 @@ import ru.megboyzz.dnevnik.ui.theme.*
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
+import java.time.MonthDay
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
@@ -39,8 +38,9 @@ fun NiceCalendar(
     onClick: (day: CalendarDay, month: YearMonth, year: Int) -> Unit
 ) {
 
-    val selections = remember { mutableStateListOf<CalendarDay>() }
+    val selections = remember { mutableStateListOf<LocalDate>() }
     val daysOfWeek = remember { daysOfWeek() }
+    var transitionEnabled by remember { mutableStateOf(true) }
 
     val state = rememberCalendarState(
         startMonth = startMonth,
@@ -56,8 +56,11 @@ fun NiceCalendar(
         firstDayOfWeek = daysOfWeek.first()
     )
 
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    val coroutineScope = rememberCoroutineScope()
+    var selectedWeek by remember { mutableStateOf<Week?>(null) }
+
+    val monthScrollCoroutineScope = rememberCoroutineScope()
+    val weekScrollCoroutineScope = rememberCoroutineScope()
+
     val visibleMonth = rememberFirstMostVisibleMonth(state, viewportPercent = 90f)
 
     Column {
@@ -65,28 +68,49 @@ fun NiceCalendar(
         SimpleCalendarTitle(
             currentMonth = visibleMonth.yearMonth,
             goToPrevious = {
-                coroutineScope.launch {
+                monthScrollCoroutineScope.launch {
                     state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
                 }
             },
             goToNext = {
-                coroutineScope.launch {
+                monthScrollCoroutineScope.launch {
                     state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                 }
-            }
+            },
+            transitionEnabled = transitionEnabled
         )
 
         Card(
             shape = RoundedCornerShape(10.dp),
             modifier = Modifier.defaultMinSize(300.dp)
         ) {
-            if(selectedDate == null) {
+            if(selectedWeek == null) {
+                transitionEnabled = true
                 HorizontalCalendar(
                     state = state,
                     dayContent = { day ->
-                        Day(day, isSelected = selectedDate == day.date) { day ->
-                            selectedDate = if (selectedDate == day.date) null else day.date
-                            onClick(day, currentMonth, currentMonth.year)
+
+                        MonthDay(
+                            day = day,
+                            isSelected = selections.contains(day.date)
+                        ) { clickedDay ->
+
+                            //Чтобы два раза не вызывать week()
+                            val week = clickedDay.week()
+
+                            if(!selections.contains(day.date)) {
+                                selections.removeIf { it != day.date }
+                                selections.add(day.date)
+                            }else selections.remove(day.date)
+
+                            weekScrollCoroutineScope.launch {
+                                weekState.startDate = clickedDay.date
+                                weekState.animateScrollToWeek(clickedDay.date)
+                            }
+
+                            selectedWeek = if (selectedWeek == week) null else week
+
+                            onClick(clickedDay, currentMonth, currentMonth.year)
                         }
                     },
                     monthHeader = { DaysOfWeekTitle(daysOfWeek = DayOfWeek.values().asList()) },
@@ -94,19 +118,20 @@ fun NiceCalendar(
                 )
             }
             else {
-                //TODO по возможности устранить повторы
+                transitionEnabled = false
                 WeekCalendar(
                     state = weekState,
                     weekHeader = { _ ->
                         DaysOfWeekTitle(daysOfWeek = DayOfWeek.values().asList())
                     },
                     dayContent = { day ->
-                        Day(
-                            CalendarDay(day.date, DayPosition.InDate),
-                            isSelected = selectedDate == day.date
+                        WeekDay(
+                            day = CalendarDay(day.date, DayPosition.InDate),
+                            isSelected = selections.contains(day.date)
                         ) { calendarDay ->
-                            selectedDate = if (selectedDate == calendarDay.date) null else calendarDay.date
-                            onClick(calendarDay, currentMonth, currentMonth.year)
+
+                            selectedWeek = null
+
                         }
                     },
                     modifier = Modifier.padding(10.dp)
@@ -122,12 +147,13 @@ fun CalendarNavigationIcon(
     icon: Painter,
     contentDescription: String,
     onClick: () -> Unit,
+    enabled: Boolean = true
 ) = Box(
     modifier = Modifier
         .size(35.dp)
         .aspectRatio(1f)
         .clip(shape = CircleShape)
-        .clickable(role = Role.Button, onClick = onClick),
+        .clickable(role = Role.Button, onClick = onClick, enabled = enabled),
 ) {
     Icon(
         modifier = Modifier
@@ -146,6 +172,7 @@ fun SimpleCalendarTitle(
     currentMonth: YearMonth,
     goToPrevious: () -> Unit,
     goToNext: () -> Unit,
+    transitionEnabled: Boolean = true
 ) {
 
     val listOfMonth = listOf(
@@ -164,7 +191,9 @@ fun SimpleCalendarTitle(
     )
 
     Box(
-        modifier = Modifier.fillMaxWidth().padding(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(
@@ -178,6 +207,7 @@ fun SimpleCalendarTitle(
                 icon = R.drawable.ic_month_swipe_left.AsPainter(),
                 contentDescription = "Previous",
                 onClick = goToPrevious,
+                enabled = transitionEnabled
             )
             Text(
                 text = currentMonth.displayText(listOfMonth),
@@ -188,6 +218,7 @@ fun SimpleCalendarTitle(
                 icon = R.drawable.ic_month_swipe_right.AsPainter(),
                 contentDescription = "Next",
                 onClick = goToNext,
+                enabled = transitionEnabled
             )
         }
     }
@@ -230,30 +261,57 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
         )
     }
 }
+
+@Composable
+fun MonthDay(
+    day: CalendarDay,
+    isSelected: Boolean,
+    onClick: (CalendarDay) -> Unit
+) {
+    Day(day = day, isSelected = isSelected, onClick = onClick)
+}
+
+@Composable
+fun WeekDay(
+    day: CalendarDay,
+    isSelected: Boolean,
+    onClick: (CalendarDay) -> Unit
+) {
+    val newDay = day.copy(position = DayPosition.MonthDate)
+    Day(day = newDay, isSelected = isSelected, onClick = onClick)
+}
+
 @Composable
 fun Day(day: CalendarDay, isSelected: Boolean, onClick: (CalendarDay) -> Unit) {
     Box(
         modifier = Modifier
             .aspectRatio(ratio = 1f) // This is important for square sizing!
-            .clip(CircleShape)
-            .background(color = if (isSelected) lightGray else Color.Transparent)
-            .border(
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = if (isSelected) mainBlue else Color.Transparent
-                ),
-                shape = CircleShape
-            )
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
                 onClick = { onClick(day) }
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = day.date.dayOfMonth.toString(),
-            style = MainText,
-            color = if (day.position == DayPosition.MonthDate) dark else Color.Gray
-        )
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(color = if (isSelected) lightGray else Color.Transparent)
+                .border(
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = if (isSelected) mainBlue else Color.Transparent
+                    ),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = day.date.dayOfMonth.toString(),
+                style = MainText,
+                textAlign = TextAlign.Justify,
+                color = if (day.position == DayPosition.MonthDate) dark else Color.Gray,
+            )
+        }
     }
 }

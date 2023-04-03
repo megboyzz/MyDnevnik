@@ -24,10 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
-import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarLayoutInfo
+import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
+import com.kizitonwose.calendar.core.*
 import kotlinx.coroutines.flow.filterNotNull
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
 import ru.megboyzz.dnevnik.ui.theme.dark
+import java.time.DayOfWeek
 
 @Composable
 fun Int.AsPainter() = painterResource(this)
@@ -134,6 +137,21 @@ fun rememberFirstMostVisibleMonth(
 }
 
 
+@Composable
+fun rememberFirstMostVisibleWeek(
+    state: WeekCalendarState,
+    viewportPercent: Float = 50f,
+): Week {
+    val visibleMonth = remember(state) { mutableStateOf(state.firstVisibleWeek) }
+    LaunchedEffect(state) {
+        snapshotFlow { state.layoutInfo.firstMostVisibleWeek(viewportPercent) }
+            .filterNotNull()
+            .collect { month -> visibleMonth.value = month }
+    }
+    return visibleMonth.value
+}
+
+
 private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50f): CalendarMonth? {
     return if (visibleMonthsInfo.isEmpty()) {
         null
@@ -147,5 +165,47 @@ private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50
             }
         }?.month
     }
+}
+
+
+private fun WeekCalendarLayoutInfo.firstMostVisibleWeek(viewportPercent: Float = 50f): Week? {
+    return if (visibleWeeksInfo.isEmpty()) {
+        null
+    } else {
+        val viewportSize = (viewportEndOffset + viewportStartOffset) * viewportPercent / 100f
+        visibleWeeksInfo.firstOrNull { itemInfo ->
+            if (itemInfo.offset < 0) {
+                itemInfo.offset + itemInfo.size >= viewportSize
+            } else {
+                itemInfo.size - itemInfo.offset >= viewportSize
+            }
+        }?.week
+    }
+}
+
+fun CalendarDay.week(): Week{
+    val weekList = mutableListOf<WeekDay>()
+    val dayOrder = this.date.dayOfWeek.ordinal
+    var mondayLocalDate = this.date.minusDays(dayOrder.toLong())
+
+    DayOfWeek.values().forEach {
+        weekList.add(WeekDay(mondayLocalDate, WeekDayPosition.RangeDate))
+        mondayLocalDate = mondayLocalDate.plusDays(1)
+    }
+    return Week(weekList)
+
+}
+
+fun WeekDay.week(): Week{
+    val weekList = mutableListOf<WeekDay>()
+    val dayOrder = this.date.dayOfWeek.ordinal
+    var mondayLocalDate = this.date.minusDays(dayOrder.toLong())
+
+    DayOfWeek.values().forEach {
+        weekList.add(WeekDay(mondayLocalDate, WeekDayPosition.RangeDate))
+        mondayLocalDate = mondayLocalDate.plusDays(1)
+    }
+    return Week(weekList)
+
 }
 
