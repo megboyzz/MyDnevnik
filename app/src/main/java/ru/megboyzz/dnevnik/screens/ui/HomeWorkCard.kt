@@ -49,9 +49,7 @@ fun BaseHomeWorkCard(
                 .defaultMinSize(300.dp)
                 .padding(5.dp)
         ){
-            Column(
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
+            Column {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,

@@ -1,6 +1,5 @@
-package ru.megboyzz.dnevnik.screens.ui
+package ru.megboyzz.dnevnik.screens.ui.schedule
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -12,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
+import ru.megboyzz.dnevnik.screens.ui.BaseCard
 import ru.megboyzz.dnevnik.ui.theme.H2
 import ru.megboyzz.dnevnik.ui.theme.MainText
 import ru.megboyzz.dnevnik.ui.theme.dark

@@ -62,3 +62,8 @@ val Mini = TextStyle(
     fontSize = 10.sp,
     fontWeight = FontWeight.Bold,
 )
+
+val textSchedule = TextStyle(
+    fontSize = 13.sp,
+    fontWeight = FontWeight.SemiBold,
+)
