@@ -1,5 +1,6 @@
 package ru.megboyzz.dnevnik.screens.ui.calendar
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -14,11 +15,13 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.WeekCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.rememberWeekCalendarState
 import com.kizitonwose.calendar.core.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
@@ -68,14 +71,10 @@ fun NiceCalendar(
         SimpleCalendarTitle(
             currentMonth = visibleMonth.yearMonth,
             goToPrevious = {
-                monthScrollCoroutineScope.launch {
-                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
-                }
+                state.scrollToPreviousMonth(monthScrollCoroutineScope)
             },
             goToNext = {
-                monthScrollCoroutineScope.launch {
-                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
-                }
+                state.scrollToNextMonth(monthScrollCoroutineScope)
             },
             transitionEnabled = transitionEnabled
         )
@@ -94,7 +93,7 @@ fun NiceCalendar(
                             day = day,
                             isSelected = selections.contains(day.date)
                         ) { clickedDay ->
-
+                            Log.i("Click!", "MonthDay is Clicked!")
                             //Чтобы два раза не вызывать week()
                             val week = clickedDay.week()
 
@@ -104,12 +103,12 @@ fun NiceCalendar(
                             }else selections.remove(day.date)
 
                             weekScrollCoroutineScope.launch {
-                                weekState.startDate = clickedDay.date
+                                weekState.startDate = week.days.first().date
+                                weekState.endDate = week.days.last().date
                                 weekState.animateScrollToWeek(clickedDay.date)
                             }
 
                             selectedWeek = if (selectedWeek == week) null else week
-
                             onClick(clickedDay, currentMonth, currentMonth.year)
                         }
                     },
@@ -126,10 +125,14 @@ fun NiceCalendar(
                     },
                     dayContent = { day ->
                         WeekDay(
-                            day = CalendarDay(day.date, DayPosition.InDate),
+                            day = day,
                             isSelected = selections.contains(day.date)
                         ) { calendarDay ->
-
+                            Log.i("Click!", "WeekDay is Clicked!")
+                            if(!selections.contains(day.date)) {
+                                selections.removeIf { it != day.date }
+                                selections.add(day.date)
+                            }else selections.remove(day.date)
                             selectedWeek = null
 
                         }
@@ -138,6 +141,21 @@ fun NiceCalendar(
                 )
             }
         }
+    }
+}
+
+
+fun CalendarState.scrollToPreviousMonth(coroutineScope: CoroutineScope){
+    val it = this
+    coroutineScope.launch {
+        it.scrollToMonth(it.firstVisibleMonth.yearMonth.previousMonth)
+    }
+}
+
+fun CalendarState.scrollToNextMonth(coroutineScope: CoroutineScope){
+    val it = this
+    coroutineScope.launch {
+        it.scrollToMonth(it.firstVisibleMonth.yearMonth.nextMonth)
     }
 }
 
@@ -273,16 +291,27 @@ fun MonthDay(
 
 @Composable
 fun WeekDay(
-    day: CalendarDay,
+    day: WeekDay,
     isSelected: Boolean,
     onClick: (CalendarDay) -> Unit
 ) {
-    val newDay = day.copy(position = DayPosition.MonthDate)
+    Log.i("WeekDay", day.toString())
+    val position = when(day.position){
+        WeekDayPosition.InDate -> DayPosition.MonthDate
+        WeekDayPosition.OutDate -> DayPosition.MonthDate
+        WeekDayPosition.RangeDate -> DayPosition.MonthDate
+    }
+    val newDay = CalendarDay(day.date, position)
     Day(day = newDay, isSelected = isSelected, onClick = onClick)
 }
 
 @Composable
-fun Day(day: CalendarDay, isSelected: Boolean, onClick: (CalendarDay) -> Unit) {
+fun Day(
+    day: CalendarDay,
+    isSelected: Boolean,
+    onClick: (CalendarDay) -> Unit
+) {
+    Log.i("BaseDay", day.toString())
     Box(
         modifier = Modifier
             .aspectRatio(ratio = 1f) // This is important for square sizing!
