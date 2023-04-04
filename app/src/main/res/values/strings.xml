@@ -64,4 +64,5 @@
     <string name="title_reason">Причина:</string>
     <string name="title_result_mark">Итог</string>
     <string name="title_average_mark">Ср. балл</string>
+    <string name="title_deadline">Выполнить до:</string>
 </resources>

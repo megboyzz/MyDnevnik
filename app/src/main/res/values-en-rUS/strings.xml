@@ -65,4 +65,5 @@
     <string name="title_reason">"Reason: "</string>
     <string name="title_result_mark">Result</string>
     <string name="title_average_mark">Average</string>
+    <string name="title_deadline">Deadline:</string>
 </resources>

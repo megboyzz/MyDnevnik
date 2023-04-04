@@ -3,7 +3,6 @@ package ru.megboyzz.dnevnik.screens.ui
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,10 +13,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -28,8 +25,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,16 +33,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
-import ru.megboyzz.dnevnik.navigation.AppNavRoute
-import ru.megboyzz.dnevnik.navigation.BaseNavRote
 import ru.megboyzz.dnevnik.ui.theme.*
-import java.time.DayOfWeek
-import java.util.*
 
 
 //Рефакторинг компонентов: разбиение файла с компонентами на отдельные файлы
@@ -57,10 +45,12 @@ import java.util.*
 
 @Composable
 fun AlmostOutlinedText(
-    text: String
+    text: String,
+    contentColor: Color = white,
+    textAlign: TextAlign = TextAlign.Center
 ){
     Column() {
-        Divider(color = white, thickness = 1.dp)
+        Divider(color = contentColor, thickness = 1.dp)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,14 +59,14 @@ fun AlmostOutlinedText(
         ) {
             Text(
                 text = text,
-                color = white,
-                textAlign = TextAlign.Center,
+                color = contentColor,
+                textAlign = textAlign,
                 style = H2,
                 modifier = Modifier
                     .fillMaxWidth()
             )
         }
-        Divider(color = white, thickness = 1.dp)
+        Divider(color = contentColor, thickness = 1.dp)
     }
 }
 
@@ -549,11 +539,23 @@ fun EmptyMessage(message: String) = ContentMessage(message = message, isFine = f
 fun FineMessage(message: String) = ContentMessage(message = message)
 
 @Composable
-fun MessageCard(
-    message: String,
+fun MessageAlert(
     content: @Composable () -> Unit
 ) {
     BaseCard {
-
+        Box(
+            modifier = Modifier.defaultMinSize(300.dp),
+            contentAlignment = Alignment.Center,
+        ){
+            content.invoke()
+        }
     }
 }
+
+@Composable
+fun MessageAlertInWork() {
+    MessageAlert {
+        EmptyMessage(message = "Раздел находится в разработке!")
+    }
+}
+

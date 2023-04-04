@@ -22,6 +22,7 @@ import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartCard
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartData
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
 import ru.megboyzz.dnevnik.ui.theme.white
+import java.time.LocalDate
 import java.time.YearMonth
 import java.util.*
 
@@ -34,7 +35,8 @@ fun NicePreviewContainer(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()).height(1500.dp),
+            .verticalScroll(rememberScrollState())
+            .height(1500.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) { content() }
@@ -251,4 +253,40 @@ fun PieChartNullPrev() {
             data = null
         )
     }
+}
+
+
+@Preview
+@Composable
+fun MessagesPrev() {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        MessageAlert {
+            EmptyMessage(message = "Таких оценок нет((")
+        }
+        MessageAlert {
+            FineMessage(message = "Сегодня нет уроков!")
+        }
+    }
+
+}
+
+@Preview
+@Composable
+fun HomeWorkCardPrev() {
+    var isDone by remember {
+        mutableStateOf(false)
+    }
+    BaseHomeWorkCard(
+        subjectName = "Алгебра и начала математического анализа",
+        homeWorkTaskText = "C. 45 №45, №56, №46",
+        deadlineDate = LocalDate.now(),
+        isDone = isDone,
+        onClickBox = {
+            isDone = !it
+        }
+    )
 }
