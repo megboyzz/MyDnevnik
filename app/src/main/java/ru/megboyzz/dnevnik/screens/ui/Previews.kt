@@ -290,3 +290,15 @@ fun HomeWorkCardPrev() {
         }
     )
 }
+
+
+@Preview
+@Composable
+fun ScheduleShieldPrev() {
+    BaseScheduleShield(
+        subjectName = "Физика",
+        teacherName = "Иванов Иван Иванович",
+        classNumber = "3.13",
+        nextLessonName = "Обществознание"
+    )
+}
