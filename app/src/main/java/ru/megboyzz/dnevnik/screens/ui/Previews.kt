@@ -1,11 +1,11 @@
 package ru.megboyzz.dnevnik
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
@@ -25,8 +25,10 @@ import ru.megboyzz.dnevnik.screens.ui.calendar.NiceCalendar
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChart
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartCard
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartData
+import ru.megboyzz.dnevnik.screens.ui.schedule.BaseScheduleCallsCard
 import ru.megboyzz.dnevnik.screens.ui.schedule.BaseScheduleCard
 import ru.megboyzz.dnevnik.screens.ui.schedule.BaseScheduleShield
+import ru.megboyzz.dnevnik.screens.ui.schedule.CallData
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
 import ru.megboyzz.dnevnik.ui.theme.white
 import java.time.LocalDate
@@ -316,7 +318,7 @@ fun ScheduleShieldPrev() {
 fun ScheduleCardPrev() {
 
     val daysOfWeek = daysOfWeek().dropLast(1)
-
+    Log.i("Locale", Locale.getDefault().country)
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -336,4 +338,19 @@ fun ScheduleCardPrev() {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun ScheduleCallsPrev() {
+    val calls = listOf(
+        CallData("9:00", "10:30"),
+        CallData("10:40", "12:10"),
+        CallData("12:40", "14:10"),
+        CallData("14:20", "15:50"),
+        CallData("18:00", "19:30")
+    )
+    
+    BaseScheduleCallsCard(callsList = calls)
+    
 }
