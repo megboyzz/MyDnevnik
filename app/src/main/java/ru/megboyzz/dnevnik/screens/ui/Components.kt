@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.DialogProperties
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.ui.theme.*
@@ -559,3 +560,8 @@ fun MessageAlertInWork() {
     }
 }
 
+
+@Composable
+fun AlertBox() {
+    //DialogProperties().
+}

@@ -7,7 +7,7 @@ import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.navigation.MarksSubScreenNavHost
-import ru.megboyzz.dnevnik.screens.ui.MainScaffold
+import ru.megboyzz.dnevnik.screens.ui.main.MainScaffold
 
 @Composable
 fun MarksScreen(

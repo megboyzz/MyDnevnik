@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -109,18 +110,17 @@ fun Modifier.drawColoredShadow(
     }
 } else this
 
-@Composable
 fun Modifier.mainClickable(
     radius: Dp = Dp.Unspecified,
     onClick: () -> Unit
-) = this.clickable(
+) = composed { this.clickable(
     interactionSource = remember { MutableInteractionSource() },
     indication = rememberRipple(
         radius = radius,
         color = dark
     ),
     onClick = onClick
-)
+) }
 
 @Composable
 fun rememberFirstMostVisibleMonth(

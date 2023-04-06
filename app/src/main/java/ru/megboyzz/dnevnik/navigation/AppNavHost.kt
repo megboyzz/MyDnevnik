@@ -16,10 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import ru.megboyzz.dnevnik.screens.HomeWorkScreen
-import ru.megboyzz.dnevnik.screens.LoginScreen
-import ru.megboyzz.dnevnik.screens.MarksScreen
-import ru.megboyzz.dnevnik.screens.ScheduleScreen
+import ru.megboyzz.dnevnik.screens.*
 
 sealed class BaseNavRote(open val route: String)
 
@@ -50,6 +47,6 @@ fun AppNavHost(){
         composable(AppNavRoute.Marks.route)         { MarksScreen(navController, scaffoldState) }
         composable(AppNavRoute.Schedule.route)      { ScheduleScreen(navController, scaffoldState) }
         composable(AppNavRoute.HomeWorks.route)     { HomeWorkScreen(navController, scaffoldState) }
-        composable(AppNavRoute.Settings.route)      {  }
+        composable(AppNavRoute.Settings.route)      { SettingsScreen(navController, scaffoldState) }
     }
 }
