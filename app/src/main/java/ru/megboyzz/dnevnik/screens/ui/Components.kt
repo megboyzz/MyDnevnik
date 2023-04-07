@@ -562,6 +562,71 @@ fun MessageAlertInWork() {
 
 
 @Composable
-fun AlertBox() {
-    //DialogProperties().
+fun BaseAlertBox(
+    title: String?,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+    buttons: @Composable () -> Unit
+) {
+    AlertDialog(
+        shape = RoundedCornerShape(20.dp),
+        onDismissRequest = onDismissRequest,
+        title = {
+                if(title != null)
+                    Text(
+                        text = title,
+                        style = H1
+                    )
+        },
+        text = {
+            content.invoke()
+        },
+        buttons = {
+            buttons.invoke()
+        }
+    )
+}
+
+@Composable
+fun AlertMessageBox(
+    title: String,
+    alertText: String,
+    onClick: () -> Unit,
+    onCancel: () -> Unit = {},
+) {
+
+    BaseAlertBox(
+        title = title,
+        onDismissRequest = onCancel,
+        content = {
+            Text(
+                text = alertText,
+                style = H2,
+                color = dark
+            )
+        },
+        buttons = {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = onClick,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = mainBlue,
+                        contentColor = white
+                    ),
+                    modifier = Modifier
+                        .defaultMinSize(170.dp).padding(bottom = 30.dp)
+                ) {
+                    Text(
+                        text = R.string.title_ok.AsString(),
+                        style = H1
+                    )
+                }
+            }
+        }
+    )
+
 }

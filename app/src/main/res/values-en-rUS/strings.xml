@@ -71,4 +71,5 @@
     <string name="settings_category_author">Author</string>
     <string name="title_choose_icons">" Select the icons for subjects"</string>
     <string name="title_enable_notif">Enable notify</string>
+    <string name="title_ok">ОК</string>
 </resources>

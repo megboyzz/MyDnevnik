@@ -70,4 +70,5 @@
     <string name="settings_category_author">Автор</string>
     <string name="title_choose_icons">Выбрать иконки для предметов</string>
     <string name="title_enable_notif">Включить уведомления о новых оценках</string>
+    <string name="title_ok">Ясно</string>
 </resources>

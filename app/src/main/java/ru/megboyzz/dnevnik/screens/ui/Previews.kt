@@ -1,4 +1,4 @@
-package ru.megboyzz.dnevnik
+package ru.megboyzz.dnevnik.screens.ui
 
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -12,24 +12,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.SouthEast
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.kizitonwose.calendar.core.daysOfWeek
-import ru.megboyzz.dnevnik.screens.SettingsCategory
-import ru.megboyzz.dnevnik.screens.SettingsMenuSwitch
-import ru.megboyzz.dnevnik.screens.SettingsMenuItem
 import ru.megboyzz.dnevnik.screens.SettingsScreen
 import ru.megboyzz.dnevnik.screens.ui.*
 import ru.megboyzz.dnevnik.screens.ui.calendar.NiceCalendar
@@ -42,7 +33,6 @@ import ru.megboyzz.dnevnik.screens.ui.schedule.BaseScheduleCard
 import ru.megboyzz.dnevnik.screens.ui.schedule.BaseScheduleShield
 import ru.megboyzz.dnevnik.screens.ui.schedule.CallData
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
-import ru.megboyzz.dnevnik.ui.theme.mainBlur
 import ru.megboyzz.dnevnik.ui.theme.white
 import java.time.LocalDate
 import java.time.YearMonth
@@ -393,15 +383,11 @@ fun SettingsTest() {
 @Preview
 @Composable
 fun Test1() {
-    
-    AlertDialog(
-        onDismissRequest = { /*TODO*/ },
-        text = {
-               Text(text = "hehe")
-        },
-        buttons = {
-                  Text(text = "hehe")
-        }
+
+    AlertMessageBox(
+        title = "Информация",
+        alertText = "В данный момент на сервере ведутся технические работы, вход невозможен, повторите попытку позднее",
+        onClick = { /*TODO*/ }
     )
 
 }
