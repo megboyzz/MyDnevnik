@@ -7,7 +7,6 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -15,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MyDnevnik"
 include(":app")
+rootProject.name = "MyDnevnik"

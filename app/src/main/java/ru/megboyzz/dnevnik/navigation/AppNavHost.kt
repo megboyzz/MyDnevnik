@@ -14,8 +14,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ru.megboyzz.dnevnik.screens.*
 
 sealed class BaseNavRote(open val route: String)
@@ -36,7 +34,7 @@ sealed class AppNavRoute(override val route: String): BaseNavRote(route){
 fun AppNavHost(){
 
     val scaffoldState = rememberScaffoldState()
-    val navController = rememberAnimatedNavController()
+    val navController = rememberNavController()
 
     NavHost(
         navController = navController,

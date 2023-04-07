@@ -7,14 +7,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavigatorProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.createGraph
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.rememberNavController
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.screens.*
@@ -35,7 +30,7 @@ sealed class MarksNavRoute(override val route: String): BaseNavRote(route){
 @Composable
 fun MarksSubScreenNavHost() {
     
-    val navController = rememberAnimatedNavController()
+    val navController = rememberNavController()
 
     val list = listOf(
         SubScreenData(

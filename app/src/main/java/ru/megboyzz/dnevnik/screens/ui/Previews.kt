@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.kizitonwose.calendar.core.daysOfWeek
 import ru.megboyzz.dnevnik.screens.SettingsScreen
 import ru.megboyzz.dnevnik.screens.ui.*
@@ -68,7 +67,7 @@ fun text() {
 @Composable
 fun DrawerPrev() {
     val scaffoldState = rememberScaffoldState()
-    val navController = rememberAnimatedNavController()
+    val navController = rememberNavController()
     Box(Modifier.background(mainBlue)) {
         DrawerContent(navController = navController, scaffoldState = scaffoldState)
     }

@@ -65,4 +65,7 @@ dependencies {
     //test libs
     testImplementation(AppDependencies.testLibraries)
     androidTestImplementation(AppDependencies.androidTestLibraries)
+
+    coreLibraryDesugaring(AppDependencies.desugaringLibraries)
+    debugImplementation(AppDependencies.debugLibraries)
 }
