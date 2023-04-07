@@ -29,6 +29,8 @@ import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarLayoutInfo
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
 import com.kizitonwose.calendar.core.*
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
+import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
 import ru.megboyzz.dnevnik.ui.theme.dark
 import java.time.DayOfWeek
@@ -49,13 +51,18 @@ fun SpacerHeight(height: Dp) = Spacer(Modifier.height(height))
 @Composable
 fun Int.AsImageVector() = ImageVector.vectorResource(this)
 
-@Composable
 fun NavController.navigate(to: BaseNavRote){
-    LaunchedEffect(Unit) {
+/*
+    LaunchedEffect(Unit){
         navigate(to.route) {
             popUpTo(to.route) { inclusive = true }
         }
+    }*/
+
+    this.navigate(to.route){
+        launchSingleTop = true
     }
+
 }
 
 fun Modifier.drawColoredShadow(

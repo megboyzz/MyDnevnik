@@ -1,4 +1,4 @@
-package ru.megboyzz.dnevnik.screens.ui
+package ru.megboyzz.dnevnik.screens.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,25 +23,6 @@ import ru.megboyzz.dnevnik.R
 
 @Composable
 fun BottomBar(navController: NavController) {
-    //Box(Modifier.fillMaxWidth().height(90.dp).shadow(8.dp))
-
-    // УЖАСНЫЙ КОСТЫЛЬ ДЛЯ ПЕРЕХОДОВ С ПОМОЩЬЮ СТЕЙТОВ TODO - УБРАТЬ
-    val goToMarks = remember { mutableStateOf(false) }
-    val goToHw = remember { mutableStateOf(false) }
-    val goToSchedule = remember { mutableStateOf(false) }
-
-    if(goToMarks.value){
-        navController.navigate(AppNavRoute.Marks)
-        //goToMarks.value = false
-    }
-    if(goToHw.value){
-        navController.navigate(AppNavRoute.HomeWorks)
-        //goToHw.value = false
-    }
-    if(goToSchedule.value){
-        navController.navigate(AppNavRoute.Schedule)
-        //goToSchedule.value = false
-    }
 
     Box(
         modifier = Modifier
@@ -68,16 +47,19 @@ fun BottomBar(navController: NavController) {
             ) {
                 BottomNavButton(
                     icon = R.drawable.ic_marks.AsPainter(),
-                    text = R.string.title_marks.AsString()
-                ) { goToMarks.value = true }
+                    text = R.string.title_marks.AsString(),
+                    onClick = { navController.navigate(AppNavRoute.Marks) }
+                )
                 BottomNavButton(
                     icon = R.drawable.ic_homework.AsPainter(),
-                    text = R.string.title_hw.AsString()
-                ) { goToHw.value = true }
+                    text = R.string.title_hw.AsString(),
+                    onClick = { navController.navigate(AppNavRoute.HomeWorks) }
+                )
                 BottomNavButton(
                     icon = R.drawable.ic_schedule.AsPainter(),
-                    text = R.string.title_schedule.AsString()
-                ) { goToSchedule.value = true }
+                    text = R.string.title_schedule.AsString(),
+                    onClick = { navController.navigate(AppNavRoute.Schedule) }
+                )
             }
         }
     }

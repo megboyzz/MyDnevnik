@@ -2,12 +2,18 @@ package ru.megboyzz.dnevnik.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavigatorProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.createGraph
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.R
@@ -63,20 +69,31 @@ fun MarksSubScreenNavHost() {
             remember { mutableStateOf(false) }
         ),
     )
-    Column {
-        SubScreenNavBar(list = list, subScreenNavController = navController)
 
-        NavHost(
-            navController = navController,
-            startDestination = MarksNavRoute.LastMarks.route
-        ){
-            composable(MarksNavRoute.LastMarks.route)           { Text(MarksNavRoute.LastMarks.route) }
-            composable(MarksNavRoute.ByDaysMarks.route)         { Text(MarksNavRoute.ByDaysMarks.route) }
-            composable(MarksNavRoute.StatsByMarks.route)        { Text(MarksNavRoute.StatsByMarks.route) }
-            composable(MarksNavRoute.StatsBySubjects.route)     { Text(MarksNavRoute.StatsBySubjects.route) }
-            composable(MarksNavRoute.ByTermsMarks.route)        { Text(MarksNavRoute.ByTermsMarks.route) }
-            composable(MarksNavRoute.ByYearMarks.route)         { Text(MarksNavRoute.ByYearMarks.route) }
+    //TODO - исправить костыль)))
+    // Костыль с перевернутым лайаутом: суть в том что NavHost создает NavGraph который использует
+    // SubScreenNavBar, но в колумне сначала идет SubScreenNavBar а потом NavHost, и где то из-за этого
+    // вылетает NPE, так как еще нет графа
+    LazyColumn(
+        reverseLayout = true
+    ){
+        item {
+            NavHost(
+                navController = navController,
+                startDestination = MarksNavRoute.LastMarks.route
+            ) {
+                composable(MarksNavRoute.LastMarks.route) { Text(MarksNavRoute.LastMarks.route) }
+                composable(MarksNavRoute.ByDaysMarks.route) { Text(MarksNavRoute.ByDaysMarks.route) }
+                composable(MarksNavRoute.StatsByMarks.route) { Text(MarksNavRoute.StatsByMarks.route) }
+                composable(MarksNavRoute.StatsBySubjects.route) { Text(MarksNavRoute.StatsBySubjects.route) }
+                composable(MarksNavRoute.ByTermsMarks.route) { Text(MarksNavRoute.ByTermsMarks.route) }
+                composable(MarksNavRoute.ByYearMarks.route) { Text(MarksNavRoute.ByYearMarks.route) }
+            }
+        }
+        item {
+            SubScreenNavBar(list = list, subScreenNavController = navController)
         }
     }
+
 
 }

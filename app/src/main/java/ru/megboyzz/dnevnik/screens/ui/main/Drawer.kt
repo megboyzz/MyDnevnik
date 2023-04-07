@@ -37,25 +37,7 @@ fun DrawerContent(
     scaffoldState: ScaffoldState
 ) {
 
-    // УЖАСНЫЙ КОСТЫЛЬ ДЛЯ ПЕРЕХОДОВ С ПОМОЩЬЮ СТЕЙТОВ TODO - УБРАТЬ
-    val goToMarks = remember { mutableStateOf(false) }
-    val goToHw = remember { mutableStateOf(false) }
-    val goToSchedule = remember { mutableStateOf(false) }
-
     val scope = rememberCoroutineScope()
-    if(goToMarks.value){
-        navController.navigate(AppNavRoute.Marks)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-    if(goToHw.value){
-        navController.navigate(AppNavRoute.HomeWorks)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-    if(goToSchedule.value){
-        navController.navigate(AppNavRoute.Schedule)
-        scope.launch { scaffoldState.drawerState.close() }
-    }
-
     Column(
         modifier = Modifier
             .width(260.dp)
@@ -74,20 +56,36 @@ fun DrawerContent(
         ) {
             DrawerMainButton(
                 icon = R.drawable.ic_marks.AsPainter(),
-                text = R.string.title_marks.AsString()
-            ) { goToMarks.value = true  }
+                text = R.string.title_marks.AsString(),
+                onClick = {
+                    navController.navigate(AppNavRoute.Marks)
+                    scope.launch { scaffoldState.drawerState.close() }
+                }
+            )
             DrawerMainButton(
                 icon = R.drawable.ic_homework.AsPainter(),
-                text = R.string.title_hw.AsString()
-            ) { goToHw.value = true  }
+                text = R.string.title_hw.AsString(),
+                onClick = {
+                    navController.navigate(AppNavRoute.HomeWorks)
+                    scope.launch { scaffoldState.drawerState.close() }
+                }
+            )
             DrawerMainButton(
                 icon = R.drawable.ic_schedule.AsPainter(),
-                text = R.string.title_schedule.AsString()
-            ) { goToSchedule.value = true }
+                text = R.string.title_schedule.AsString(),
+                onClick = {
+                    navController.navigate(AppNavRoute.Schedule)
+                    scope.launch { scaffoldState.drawerState.close() }
+                }
+            )
             DrawerMainButton(
                 icon = R.drawable.ic_settings.AsPainter(),
-                text = R.string.title_settings.AsString()
-            ) { /* TODO */ }
+                text = R.string.title_settings.AsString(),
+                onClick = {
+                    navController.navigate(AppNavRoute.Settings)
+                    scope.launch { scaffoldState.drawerState.close() }
+                }
+            )
         }
         Spacer(Modifier.weight(1f))
         Divider(color = white, thickness = 1.dp)
