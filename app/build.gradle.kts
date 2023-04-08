@@ -56,16 +56,29 @@ android {
 
 }
 
+tasks.register("connectToWSA"){
+
+}
+
 dependencies {
 
     //std lib
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    //app libs
+   /* //app libs
     implementation(AppDependencies.appLibraries)
     //test libs
     testImplementation(AppDependencies.testLibraries)
     androidTestImplementation(AppDependencies.androidTestLibraries)
 
     coreLibraryDesugaring(AppDependencies.desugaringLibraries)
-    debugImplementation(AppDependencies.debugLibraries)
+    debugImplementation(AppDependencies.debugLibraries)*/
+
+    //app libs
+    implementation(AppLibraries)
+    //test libs
+    testImplementation(TestLibraries)
+    androidTestImplementation(AndroidTestLibraries)
+
+    coreLibraryDesugaring(DesugaringLibraries)
+    debugImplementation(DebugLibraries)
 }
