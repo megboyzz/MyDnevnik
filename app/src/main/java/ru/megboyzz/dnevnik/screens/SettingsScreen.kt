@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
+import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.screens.ui.UnderlinedText
 import ru.megboyzz.dnevnik.screens.ui.main.SettingsScaffold
 import ru.megboyzz.dnevnik.ui.theme.H2
@@ -23,9 +24,7 @@ fun SettingsScreen(
 ) {
 
     SettingsScaffold(
-        onLeave = {
-                  //navController.navigate()
-        },
+        onLeave = { navController.navigate(AppNavRoute.Marks) },
         scaffoldState = scaffoldState,
         navController = navController
     ) {

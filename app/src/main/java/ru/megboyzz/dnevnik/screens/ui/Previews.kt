@@ -20,9 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.kizitonwose.calendar.core.daysOfWeek
+import ru.megboyzz.dnevnik.navigate
+import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.screens.SettingsScreen
 import ru.megboyzz.dnevnik.screens.ui.*
 import ru.megboyzz.dnevnik.screens.ui.calendar.NiceCalendar
+import ru.megboyzz.dnevnik.screens.ui.main.DrawerContent
 import ru.megboyzz.dnevnik.screens.ui.main.SettingsScaffold
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChart
 import ru.megboyzz.dnevnik.screens.ui.piechart.PieChartCard
@@ -363,7 +366,7 @@ fun ScaffoldTest() {
     val scaffoldState = rememberScaffoldState()
     val navController = rememberNavController()
     SettingsScaffold(
-        onLeave = { /*TODO*/ },
+        onLeave = { navController.navigate(AppNavRoute.Marks) },
         scaffoldState = scaffoldState,
         navController = navController
     ) {

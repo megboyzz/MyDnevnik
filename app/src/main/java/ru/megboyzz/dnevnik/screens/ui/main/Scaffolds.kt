@@ -22,8 +22,6 @@ import kotlinx.coroutines.launch
 import ru.megboyzz.dnevnik.AsPainter
 import ru.megboyzz.dnevnik.AsString
 import ru.megboyzz.dnevnik.SpacerWidth
-import ru.megboyzz.dnevnik.screens.ui.DrawerContent
-import ru.megboyzz.dnevnik.screens.ui.drawerShape
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
 import ru.megboyzz.dnevnik.ui.theme.white
 import ru.megboyzz.dnevnik.R
@@ -32,7 +30,6 @@ import ru.megboyzz.dnevnik.R
 fun MainScaffold(
     icon: Painter,
     title: String,
-    /* TODO viewModel */
     navController: NavController,
     scaffoldState: ScaffoldState,
     content: (@Composable (it: PaddingValues) -> Unit),
@@ -99,10 +96,13 @@ fun BaseScaffold(
             }
         },
         content = content,
-        drawerBackgroundColor = mainBlue,
-        drawerContentColor = white,
-        drawerShape = drawerShape,
-        drawerContent = { DrawerContent(navController, scaffoldState) },
+        drawerBackgroundColor = Color.Transparent,
+        drawerContentColor = Color.Transparent,
+        //drawerShape = drawerShape,
+        drawerElevation = 0.dp,
+        drawerContent = {
+            DrawerContent(navController, scaffoldState)
+        },
         bottomBar = bottomBar
     )
 }

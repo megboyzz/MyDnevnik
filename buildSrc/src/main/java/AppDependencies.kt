@@ -1,7 +1,5 @@
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
-//TODO - придумать обработчик зависмостей основанный на рефлексии
-
 object AppLibraries: DependencyList() {
 
     //std lib
