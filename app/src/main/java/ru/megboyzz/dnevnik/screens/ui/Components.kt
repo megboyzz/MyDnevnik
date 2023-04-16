@@ -33,7 +33,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.DialogProperties
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.ui.theme.*
@@ -102,18 +101,20 @@ fun ProfileCard(
 
 @Composable
 fun MainTextField(
-    value: MutableState<String>,
-    isError: MutableState<Boolean> = remember { mutableStateOf(false) },
+    value: String,
+    onChange: (String) -> Unit,
+    isError: Boolean,
+    isLoading: Boolean = false,
+    onErrorChanged: (Boolean) -> Unit,
     label: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
-    onChange: (it: String) -> Unit = { value.value = it }
 ) {
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val focusRequester = FocusRequester()
 
     OutlinedTextField(
-        value = value.value,
+        value = value,
         onValueChange = onChange,
         label = {
             Text(
@@ -126,8 +127,8 @@ fun MainTextField(
         textStyle = H2,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             textColor = dark,
-            unfocusedBorderColor = if (isError.value) falseColor else mainBlue,
-            focusedBorderColor = if (isError.value) falseColor else mainBlue,
+            unfocusedBorderColor = if (isError) falseColor else mainBlue,
+            focusedBorderColor = if (isError) falseColor else mainBlue,
             focusedLabelColor = dark,
             unfocusedLabelColor = dark,
             cursorColor = dark
@@ -152,42 +153,50 @@ fun MainTextField(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, "")
                 }
+            } else {
+                if(isLoading) LoginProgress()
             }
         },
         modifier = Modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
                 if (it.isFocused)
-                    if (isError.value) isError.value = false
+                    if (isError) onErrorChanged(false)
             }
             .fillMaxWidth(),
     )
 }
 
 @Composable
+fun LoginProgress() {
+    CircularProgressIndicator(
+        modifier = Modifier.size(20.dp),
+        strokeWidth = 2.dp,
+        color = mainBlue
+    )
+}
+
+@Composable
 fun MainCheckbox(
-    isChecked: MutableState<Boolean>,
+    isChecked: Boolean,
     modifier: Modifier = Modifier,
     size: Float = 24f,
     checkedColor: Color = mainBlue,
     uncheckedColor: Color = lightGray,
     checkmarkColor: Color = white,
-    onValueChange: () -> Unit
+    onValueChange: (Boolean) -> Unit
 ) {
 
-    val checkboxColor: Color by animateColorAsState(if (isChecked.value) checkedColor else uncheckedColor)
+    val checkboxColor: Color by animateColorAsState(if (isChecked) checkedColor else uncheckedColor)
     val density = LocalDensity.current
     val duration = 200
 
     Row(
         modifier = modifier
             .toggleable(
-                value = isChecked.value,
+                value = isChecked,
                 role = Role.Checkbox,
-                onValueChange = {
-                    isChecked.value = !isChecked.value
-                    onValueChange.invoke()
-                }
+                onValueChange = onValueChange
             )
     ) {
         Card(
@@ -202,7 +211,7 @@ fun MainCheckbox(
                 contentAlignment = Alignment.Center
             ) {
                 androidx.compose.animation.AnimatedVisibility(
-                    visible = isChecked.value,
+                    visible = isChecked,
                     enter = slideInHorizontally(
                         animationSpec = tween(duration)
                     ) {
@@ -618,7 +627,8 @@ fun AlertMessageBox(
                         contentColor = white
                     ),
                     modifier = Modifier
-                        .defaultMinSize(170.dp).padding(bottom = 30.dp)
+                        .defaultMinSize(170.dp)
+                        .padding(bottom = 30.dp)
                 ) {
                     Text(
                         text = R.string.title_ok.AsString(),

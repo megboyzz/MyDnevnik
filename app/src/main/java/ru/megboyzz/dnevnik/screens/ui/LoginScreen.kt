@@ -22,10 +22,15 @@ import ru.megboyzz.dnevnik.R
 
 @Composable
 fun LoginScreenContent(
-    login: MutableState<String>,
-    password: MutableState<String>,
-    isError: MutableState<Boolean>,
-    isRememberMe: MutableState<Boolean>,
+    login: String,
+    onLoginChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isLoading: Boolean,
+    isError: Boolean,
+    onErrorChange: (Boolean) -> Unit,
+    isRememberMe: Boolean,
+    onRememberChange: (Boolean) -> Unit,
     onSignIn: () -> Unit,
     onSignUp: () -> Unit,
     onForgetPassword: () -> Unit
@@ -65,14 +70,19 @@ fun LoginScreenContent(
                     MainTextField(
                         value = login,
                         label = R.string.title_login.AsString(),
-                        isError = isError
+                        isError = isError,
+                        isLoading = isLoading,
+                        onErrorChanged = onErrorChange,
+                        onChange = onLoginChange
                     )
                     SpacerHeight(15.dp)
                     MainTextField(
                         value = password,
                         keyboardType = KeyboardType.Password,
                         label = R.string.title_password.AsString(),
-                        isError = isError
+                        isError = isError,
+                        onErrorChanged = onErrorChange,
+                        onChange = onPasswordChange
                     )
                 }
                 SpacerHeight(5.dp)
@@ -87,7 +97,10 @@ fun LoginScreenContent(
                         modifier = Modifier.fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        MainCheckbox(isRememberMe) { }
+                        MainCheckbox(
+                            isChecked = isRememberMe,
+                            onValueChange = onRememberChange
+                        )
                         SpacerWidth(5.dp)
                         Text(
                             text = R.string.title_remember_me.AsString(),

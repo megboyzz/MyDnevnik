@@ -1,12 +1,12 @@
 package ru.megboyzz.dnevnik
 
-import android.accounts.Account
 import android.app.Application
 import androidx.room.Room
 import ru.megboyzz.dnevnik.db.CredentialsDataBase
 
 class App : Application() {
-    var database: CredentialsDataBase? = null
+
+    lateinit var database: CredentialsDataBase
         private set
 
     override fun onCreate() {

@@ -28,10 +28,12 @@ import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarLayoutInfo
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
 import com.kizitonwose.calendar.core.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
 import ru.megboyzz.dnevnik.ui.theme.dark
 import java.time.DayOfWeek
+import kotlin.coroutines.*
 
 @Composable
 fun Int.AsPainter() = painterResource(this)
@@ -201,16 +203,28 @@ fun CalendarDay.week(): Week{
 
 }
 
-fun WeekDay.week(): Week{
-    val weekList = mutableListOf<WeekDay>()
-    val dayOrder = this.date.dayOfWeek.ordinal
-    var mondayLocalDate = this.date.minusDays(dayOrder.toLong())
 
-    DayOfWeek.values().forEach {
-        weekList.add(WeekDay(mondayLocalDate, WeekDayPosition.RangeDate))
-        mondayLocalDate = mondayLocalDate.plusDays(1)
-    }
-    return Week(weekList)
+private class MutableStateAdapter<T>(
+    private val state: State<T>,
+    private val mutate: (T) -> Unit
+) : MutableState<T> {
 
+    override var value: T
+        get() = state.value
+        set(value) {
+            mutate(value)
+        }
+
+    override fun component1(): T = value
+    override fun component2(): (T) -> Unit = { value = it }
 }
+
+// Flow
+@Composable
+fun <T> MutableStateFlow<T>.collectAsMutableState(
+    context: CoroutineContext = EmptyCoroutineContext
+): MutableState<T> = MutableStateAdapter(
+    state = collectAsState(context),
+    mutate = { value = it }
+)
 
