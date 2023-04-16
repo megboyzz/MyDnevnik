@@ -13,6 +13,7 @@ object Versions {
     val constraintLayout = "2.0.0-beta8"
 
     val compose = "1.4.1"
+    val room = "2.2.6"
 
     //test
     val junit = "4.12"

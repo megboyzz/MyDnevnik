@@ -1,3 +1,4 @@
+import core.DependencyList
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
 object AppLibraries: DependencyList() {
@@ -31,6 +32,11 @@ object AppLibraries: DependencyList() {
     val lazyHorizontalGrid = "androidx.compose.foundation:foundation:1.3.1"
     val calendar = "com.kizitonwose.calendar:compose:2.1.1"
     val asyncImage = "io.coil-kt:coil-compose:2.2.0"
+
+    val roomRuntime = "androidx.room:room-runtime:${Versions.room}"
+    val roomKtx = "androidx.room:room-ktx:${Versions.room}"
+
+    val jsoup = "org.jsoup:jsoup:1.15.4"
     
 }
 
@@ -58,7 +64,12 @@ object AndroidTestLibraries: DependencyList() {
 
 object TestLibraries: DependencyList() {
     //test libs
-    private val junit = "junit:junit:${Versions.junit}"
+    val junit = "junit:junit:${Versions.junit}"
+}
+
+object KaptLibraries: DependencyList(){
+
+    val compiler = "androidx.room:room-compiler:${Versions.room}"
 }
 
 /**

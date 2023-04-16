@@ -1,3 +1,5 @@
+package core
+
 open class DependencyList {
 
     fun list(): List<String>{

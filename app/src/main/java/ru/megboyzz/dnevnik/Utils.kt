@@ -29,8 +29,6 @@ import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarLayoutInfo
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
 import com.kizitonwose.calendar.core.*
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
-import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.navigation.BaseNavRote
 import ru.megboyzz.dnevnik.ui.theme.dark
 import java.time.DayOfWeek
