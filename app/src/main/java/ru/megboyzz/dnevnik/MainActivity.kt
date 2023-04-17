@@ -53,12 +53,17 @@ class MainActivity : ComponentActivity() {
         GlobalScope.launch(Dispatchers.IO) {
 
             val credentialsDao = app.database.credentialsDao()
+            val globalUserContext = app.database.globalUserContextDao()
 
             if(credentialsDao.credentialsIsExists()) {
                 val credentials = credentialsDao.getCredentials()
-                if (!credentials.rememberMe)
+                if (!credentials.rememberMe) {
                     credentialsDao.deleteCredentials()
+                    globalUserContext.deleteGlobalUserContext()
+                }
             }
+
+
         }
 
     }

@@ -1,5 +1,6 @@
 package ru.megboyzz.dnevnik.authorization
 
+import android.util.Log
 import com.google.gson.Gson
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jsoup.Connection
@@ -88,6 +89,7 @@ class AuthorizationManager(dataBase: AppDataBase) {
                     .execute()
 
             }.onFailure {
+                Log.e("Auth", it.message.toString())
                 return AuthorizationStatus.NO_INTERNET
             }.onSuccess { response1 ->
                 val htmlByLines = response1.body().split("\n")

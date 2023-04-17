@@ -1,5 +1,8 @@
 package ru.megboyzz.dnevnik.screens
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,27 +55,41 @@ fun LoginScreen(navController: NavController) {
 
     if(loginStatus.value == AuthorizationStatus.LOGGED)
         navController.navigate(AppNavRoute.Marks)
+    Column() {
+        Button(onClick = {
+            login.value = "08012002@mail.ru"
+            password.value = "1282565121024QWEasdfZXC"
+        }) {
+            Text("Я")
+        }
+        Button(onClick = {
+            login.value = "kitsekaterina"
+            password.value = "k12345"
+        }) {
+            Text("Катя")
+        }
 
-    LoginScreenContent(
-        login = login.value,
-        onLoginChange = { login.value = it },
+        LoginScreenContent(
+            login = login.value,
+            onLoginChange = { login.value = it },
 
-        password = password.value,
-        onPasswordChange = { password.value = it },
+            password = password.value,
+            onPasswordChange = { password.value = it },
 
-        isError = loginStatus.value == AuthorizationStatus.WRONG_CREDENTIALS,
-        onErrorChange = {  },
+            isError = loginStatus.value == AuthorizationStatus.WRONG_CREDENTIALS,
+            onErrorChange = { },
 
-        isLoading = isLoading,
+            isLoading = isLoading,
 
-        isRememberMe = rememberMe.value,
-        onRememberChange = { rememberMe.value = it },
+            isRememberMe = rememberMe.value,
+            onRememberChange = { rememberMe.value = it },
 
-        onSignIn = {
-            if(loginStatus.value != AuthorizationStatus.LOGGED)
-                authorizationViewModel.login()
-        },
-        onSignUp = { /*TODO*/ },
-        onForgetPassword = { /* TODO */ }
-    )
+            onSignIn = {
+                if (loginStatus.value != AuthorizationStatus.LOGGED)
+                    authorizationViewModel.login()
+            },
+            onSignUp = { /*TODO*/ },
+            onForgetPassword = { /* TODO */ }
+        )
+    }
 }

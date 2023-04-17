@@ -1,5 +1,6 @@
 package ru.megboyzz.dnevnik.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +34,9 @@ class AuthorizationViewModel(application: App) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
 
             loginStatus.emit(AuthorizationStatus.LOGGING)
-            loginStatus.emit(authManager.login(login.value, password.value, rememberMe.value))
+            val login1 = authManager.login(login.value, password.value, rememberMe.value)
+            Log.i("Auth", login1.toString())
+            loginStatus.emit(login1)
 
         }
 
