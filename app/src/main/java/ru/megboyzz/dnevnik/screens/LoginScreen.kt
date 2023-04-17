@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import ru.megboyzz.dnevnik.MainActivity
 import ru.megboyzz.dnevnik.authorization.AuthorizationStatus
 import ru.megboyzz.dnevnik.collectAsMutableState
+import ru.megboyzz.dnevnik.navigate
 import ru.megboyzz.dnevnik.navigation.AppNavRoute
 import ru.megboyzz.dnevnik.screens.ui.AlertMessageBox
 import ru.megboyzz.dnevnik.screens.ui.LoginScreenContent
@@ -35,6 +36,12 @@ fun LoginScreen(navController: NavController) {
         mutableStateOf(true)
     }
 
+    var isLoading by remember {
+        mutableStateOf(false)
+    }
+
+    if(loginStatus.value == AuthorizationStatus.LOGGING) isLoading = true
+
     if(loginStatus.value == AuthorizationStatus.WRONG_CREDENTIALS && isError) {
         AlertMessageBox(
             title = "Информация",
@@ -44,7 +51,7 @@ fun LoginScreen(navController: NavController) {
     }
 
     if(loginStatus.value == AuthorizationStatus.LOGGED)
-        navController.navigate(AppNavRoute.Marks.route)
+        navController.navigate(AppNavRoute.Marks)
 
     LoginScreenContent(
         login = login.value,
@@ -56,7 +63,7 @@ fun LoginScreen(navController: NavController) {
         isError = loginStatus.value == AuthorizationStatus.WRONG_CREDENTIALS,
         onErrorChange = {  },
 
-        isLoading = loginStatus.value == AuthorizationStatus.LOGGING,
+        isLoading = isLoading,
 
         isRememberMe = rememberMe.value,
         onRememberChange = { rememberMe.value = it },

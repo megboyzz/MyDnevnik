@@ -393,3 +393,12 @@ fun Test1() {
     )
 
 }
+
+@Preview
+@Composable
+fun AlertTest() {
+    LeaveAlert(onAgree = { /*TODO*/ }) {
+        
+    }
+
+}

@@ -1,5 +1,6 @@
 package ru.megboyzz.dnevnik.screens.ui
 
+import android.app.AlertDialog
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -8,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -20,11 +22,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,9 +37,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
+import coil.compose.AsyncImage
 import ru.megboyzz.dnevnik.*
 import ru.megboyzz.dnevnik.R
 import ru.megboyzz.dnevnik.ui.theme.*
+import ru.megboyzz.dnevnik.viewmodel.model.UserProfileModel
 
 
 //Рефакторинг компонентов: разбиение файла с компонентами на отдельные файлы
@@ -73,25 +79,29 @@ fun AlmostOutlinedText(
 @Composable
 fun ProfileCard(
     textColor: Color = white,
-    painter: Painter
+    userProfileModel: UserProfileModel
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Image(
-            modifier = Modifier.padding(10.dp, 15.dp, 20.dp, 15.dp),
-            painter = painter, //TODO заменить динмической картинкой
-            contentDescription = "chel"
+        AsyncImage(
+            modifier = Modifier
+                .padding(10.dp, 15.dp, 20.dp, 15.dp)
+                .clip(RoundedCornerShape(25.dp))
+                .size(50.dp),
+            contentScale = ContentScale.Crop,
+            model = userProfileModel.avatarUrl,
+            contentDescription = ""
         )
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Text(
-                text = "Имя и фамилия",
+                text = userProfileModel.toString(),
                 style = H1,
                 color = textColor
             )
             Text(
-                text = "Класс/Группа",
+                text = userProfileModel.groupName,
                 style = H1,
                 color = textColor
             )
@@ -639,4 +649,66 @@ fun AlertMessageBox(
         }
     )
 
+}
+
+
+@Composable
+fun LeaveAlert(
+    isLoading: Boolean = false,
+    onAgree: () -> Unit,
+    onCancel: () -> Unit,
+){
+    BaseAlertBox(
+        title = R.string.tile_leave.AsString(),
+        onDismissRequest = onCancel,
+        content = {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = R.string.text_leave.AsString(),
+                    style = H2,
+                    color = dark
+                )
+                if(isLoading) CircularProgressIndicator()
+            }
+        },
+        buttons = {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AlertButton(
+                    title = R.string.title_cancel.AsString(),
+                    onClick = onCancel
+                )
+                SpacerWidth(width = 10.dp)
+                AlertButton(
+                    title = R.string.title_button_leave.AsString(),
+                    onClick = onAgree
+                )
+
+            }
+        }
+    )
+}
+
+@Composable
+fun AlertButton(
+    title: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = mainBlue,
+            contentColor = white
+        ),
+        modifier = Modifier
+            .padding(bottom = 30.dp)
+    ){
+        Text(
+            text = title,
+            style = H1
+        )
+    }
 }

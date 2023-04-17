@@ -1,22 +1,46 @@
 package ru.megboyzz.dnevnik.authorization
 
-import android.util.Log
+import com.google.gson.Gson
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jsoup.Connection
 import org.jsoup.Jsoup
-import ru.megboyzz.dnevnik.db.dao.CredentialsDao
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import ru.megboyzz.dnevnik.db.AppDataBase
+import ru.megboyzz.dnevnik.entities.context.marks.init.state.MarksContext
+import ru.megboyzz.dnevnik.entities.context.marks.init.state.SchoolType
 import ru.megboyzz.dnevnik.entities.db.Credentials
+import ru.megboyzz.dnevnik.entities.db.GlobalUserContext
+import ru.megboyzz.dnevnik.service.ContextService
 import java.net.URL
 
 
-class AuthorizationManager(private val credentialsDao: CredentialsDao) {
+class AuthorizationManager(dataBase: AppDataBase) {
 
     private val returnUrl =
         "https://login.dnevnik.ru/oauth2?response_type=token&client_id=bb97b3e445a340b9b9cab4b9ea0dbd6f&scope=CommonInfo,ContactInfo,FriendsAndRelatives,EducationalInfo"
 
     private val baseUrl = "https://login.dnevnik.ru/login/"
 
+    private val apiUrl = "https://api.dnevnik.ru"
+
+    private val retrofit = Retrofit
+        .Builder()
+        .baseUrl(apiUrl)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private val contextService = retrofit.create(ContextService::class.java)
+
+    private val marksState = "https://dnevnik.ru/marks"
+
+    private val credentialsDao = dataBase.credentialsDao()
+
+    private val userContextDao = dataBase.globalUserContextDao()
+
     private var credentials = Credentials(token = "", cookies =  mapOf(), rememberMe = false)
+
+    private val gson = Gson()
 
     fun login(
         login: String,
@@ -24,7 +48,7 @@ class AuthorizationManager(private val credentialsDao: CredentialsDao) {
         rememberMe: Boolean
     ): AuthorizationStatus {
 
-        val execute = runCatching<Connection.Response> {
+        runCatching<Connection.Response> {
              Jsoup
                 .connect(baseUrl)
                 .method(Connection.Method.POST)
@@ -34,26 +58,15 @@ class AuthorizationManager(private val credentialsDao: CredentialsDao) {
                 .followRedirects(true)
                 .execute()
         }.onFailure {
-
-            Log.i("AuthorizationManager", "No internet")
             return AuthorizationStatus.NO_INTERNET
-        }
-
-        val response = execute.getOrNull()
-
-        if(response != null){
-
-            if(response.statusCode() != 200) {
-                Log.i("AuthorizationManager", "Maintain")
+        }.onSuccess { response ->
+            if(response.statusCode() != 200)
                 return AuthorizationStatus.MAINTAIN
-            }
 
             val url = response.url()
 
-            if(url.getResult() != "success") {
-                Log.i("AuthorizationManager", "Wrong login")
+            if(url.getResult() != "success")
                 return AuthorizationStatus.WRONG_CREDENTIALS
-            }
 
             //Безопасная зона
             val cookies = response.cookies()
@@ -64,7 +77,39 @@ class AuthorizationManager(private val credentialsDao: CredentialsDao) {
             )
             dbUpdate()
 
-        }else return AuthorizationStatus.NO_INTERNET //Может быть опасно
+            kotlin.runCatching {
+
+                Jsoup
+                    .connect(marksState)
+                    .method(Connection.Method.GET)
+                    .cookies(cookies)
+                    .ignoreContentType(true)
+                    .followRedirects(true)
+                    .execute()
+
+            }.onFailure {
+                return AuthorizationStatus.NO_INTERNET
+            }.onSuccess { response1 ->
+                val htmlByLines = response1.body().split("\n")
+                val contextLine = htmlByLines.find { it.contains("window.__MARKS__INITIAL__STATE__") }
+                val marksContextStr =
+                    contextLine?.substring(contextLine.indexOf("{"), contextLine.length - 2)
+                val marksContext = gson.fromJson(marksContextStr, MarksContext::class.java)
+
+                val context = contextService.getContext(credentials.token, marksContext.context.userId).execute()
+
+
+
+                if(context.isSuccessful){
+                    val body = context.body() ?: return AuthorizationStatus.UNKNOWN_ERROR
+                    userContextDao.setGlobalUserContext(GlobalUserContext(
+                        apiUserContext = body,
+                        marksInitStateUserContext = marksContext
+                    ))
+                } else return AuthorizationStatus.UNKNOWN_ERROR
+            }
+
+        }
 
         return AuthorizationStatus.LOGGED
 

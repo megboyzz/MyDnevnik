@@ -19,8 +19,8 @@ class AuthorizationViewModel(application: App) : AndroidViewModel(application) {
     val password = MutableStateFlow("")
     val rememberMe = MutableStateFlow(false)
 
-    val loginStatus = MutableStateFlow(AuthorizationStatus.NOTHING)
-    private val authManager = AuthorizationManager(application.database.credentialsDao())
+    val loginStatus = MutableStateFlow(AuthorizationStatus.CREDENTIALS_LOADING)
+    private val authManager = AuthorizationManager(application.database)
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

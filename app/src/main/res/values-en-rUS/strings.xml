@@ -72,4 +72,10 @@
     <string name="title_choose_icons">" Select the icons for subjects"</string>
     <string name="title_enable_notif">Enable notify</string>
     <string name="title_ok">ОК</string>
+    <string name="tile_leave">Leave</string>
+    <string name="text_leave">Are you sure you want to exit the diary?</string>
+    <string name="title_button_leave">Leave</string>
+    <string name="title_cancel">Cancel</string>
+    <string name="title_quatter_format">Quatter %d</string>
+    <string name="title_sem_format">Semester %d</string>
 </resources>

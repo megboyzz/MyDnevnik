@@ -8,7 +8,7 @@ data class PersonContext(
     val middleName: String,
     val lastName: String,
     val avatarUrl: String,
-    val schoolInfo: SchoolInfo,
+    val school: SchoolInfo,
     val group: GroupInfo,
     val reportingPeriodGroup: PeriodGroup
 )

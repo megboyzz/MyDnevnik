@@ -10,7 +10,6 @@ import ru.megboyzz.dnevnik.entities.db.Credentials
 @Dao
 interface CredentialsDao {
 
-
     @Query("SELECT EXISTS(SELECT * FROM Credentials WHERE id = 0)")
     fun credentialsIsExists(): Boolean
     @Query("SELECT * FROM Credentials WHERE id = 0")

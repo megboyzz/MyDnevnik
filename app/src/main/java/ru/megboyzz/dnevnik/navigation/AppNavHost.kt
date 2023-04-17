@@ -1,5 +1,6 @@
 package ru.megboyzz.dnevnik.navigation
 
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +19,7 @@ import ru.megboyzz.dnevnik.collectAsMutableState
 import ru.megboyzz.dnevnik.screens.*
 import ru.megboyzz.dnevnik.viewmodel.AuthorizationViewModel
 import ru.megboyzz.dnevnik.viewmodel.AuthorizationViewModelFactory
+import ru.megboyzz.dnevnik.navigate
 
 sealed class BaseNavRote(open val route: String)
 
@@ -52,11 +54,18 @@ fun AppNavHost(){
     ){
         composable(AppNavRoute.Splash.route)        {
 
-            if(loginStatus.value != AuthorizationStatus.LOGGED){
-                navController.navigate(AppNavRoute.Login.route)
-            }else
-                navController.navigate(AppNavRoute.Marks.route)
+            when(loginStatus.value){
 
+                AuthorizationStatus.CREDENTIALS_LOADING -> { CircularProgressIndicator() }
+                AuthorizationStatus.LOGGED -> {
+                    navController.navigate(AppNavRoute.Marks)
+                }
+                AuthorizationStatus.NOTHING -> {
+                    navController.navigate(AppNavRoute.Login)
+                }
+                else -> {}
+
+            }
 
         }
         composable(AppNavRoute.Login.route)         { LoginScreen(navController) }

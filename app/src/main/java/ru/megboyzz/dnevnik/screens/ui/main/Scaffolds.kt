@@ -1,10 +1,7 @@
 package ru.megboyzz.dnevnik.screens.ui.main
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -25,6 +22,7 @@ import ru.megboyzz.dnevnik.SpacerWidth
 import ru.megboyzz.dnevnik.ui.theme.mainBlue
 import ru.megboyzz.dnevnik.ui.theme.white
 import ru.megboyzz.dnevnik.R
+import ru.megboyzz.dnevnik.viewmodel.model.UserProfileModel
 
 @Composable
 fun MainScaffold(
@@ -32,7 +30,7 @@ fun MainScaffold(
     title: String,
     navController: NavController,
     scaffoldState: ScaffoldState,
-    content: (@Composable (it: PaddingValues) -> Unit),
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -52,6 +50,9 @@ fun MainScaffold(
         navController = navController,
         scaffoldState = scaffoldState,
         bottomBar = { BottomBar(navController) },
+        drawerContent = {
+            DrawerContent(navController, scaffoldState)
+        },
         content = content
     )
 }
@@ -65,6 +66,7 @@ fun BaseScaffold(
     navController: NavController,
     scaffoldState: ScaffoldState,
     bottomBar: @Composable () -> Unit,
+    drawerContent: @Composable (ColumnScope) -> Unit = {},
     content: (@Composable (it: PaddingValues) -> Unit),
 ) {
     Scaffold(
@@ -100,9 +102,7 @@ fun BaseScaffold(
         drawerContentColor = Color.Transparent,
         //drawerShape = drawerShape,
         drawerElevation = 0.dp,
-        drawerContent = {
-            DrawerContent(navController, scaffoldState)
-        },
+        drawerContent = drawerContent,
         bottomBar = bottomBar
     )
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -52,10 +53,12 @@ class MainActivity : ComponentActivity() {
         GlobalScope.launch(Dispatchers.IO) {
 
             val credentialsDao = app.database.credentialsDao()
-            val credentials = credentialsDao.getCredentials()
-            if(!credentials.rememberMe)
-                credentialsDao.deleteCredentials()
 
+            if(credentialsDao.credentialsIsExists()) {
+                val credentials = credentialsDao.getCredentials()
+                if (!credentials.rememberMe)
+                    credentialsDao.deleteCredentials()
+            }
         }
 
     }

@@ -7,6 +7,8 @@ enum class AuthorizationStatus {
     WRONG_CREDENTIALS,
     NO_INTERNET,
     MAINTAIN,
-    NOTHING
+    CREDENTIALS_LOADING,
+    NOTHING,
+    UNKNOWN_ERROR
 
 }

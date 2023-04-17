@@ -71,4 +71,10 @@
     <string name="title_choose_icons">Выбрать иконки для предметов</string>
     <string name="title_enable_notif">Включить уведомления о новых оценках</string>
     <string name="title_ok">Ясно</string>
+    <string name="tile_leave">Выход</string>
+    <string name="text_leave">Вы точно хотите выйти из дневника? Авторизационные данные будут удалены.</string>
+    <string name="title_button_leave">Выйти</string>
+    <string name="title_cancel">Отмена</string>
+    <string name="title_quatter_format">Идет %d-я четверть</string>
+    <string name="title_sem_format">Идет %d-ий семестр</string>
 </resources>

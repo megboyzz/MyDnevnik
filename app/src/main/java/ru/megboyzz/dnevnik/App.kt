@@ -2,18 +2,18 @@ package ru.megboyzz.dnevnik
 
 import android.app.Application
 import androidx.room.Room
-import ru.megboyzz.dnevnik.db.CredentialsDataBase
+import ru.megboyzz.dnevnik.db.AppDataBase
 
 class App : Application() {
 
-    lateinit var database: CredentialsDataBase
+    lateinit var database: AppDataBase
         private set
 
     override fun onCreate() {
 
         super.onCreate()
         instance = this
-        database = Room.databaseBuilder(this, CredentialsDataBase::class.java, "database")
+        database = Room.databaseBuilder(this, AppDataBase::class.java, "database")
             .build()
     }
 
